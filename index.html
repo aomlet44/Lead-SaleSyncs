@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salesyncs Business Health Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050B14;--bg2:#070B12;--card:#0F172A;--card2:#111827;--border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.06);--text:#F8FAFC;--text2:#94A3B8;--text3:#64748B;--green:#22C55E;--green-dim:rgba(34,197,94,0.12);--blue:#38BDF8;--blue-dim:rgba(56,189,248,0.12);--purple:#8B5CF6;--purple-dim:rgba(139,92,246,0.12);--yellow:#F59E0B;--red:#EF4444;--r:12px;--r2:16px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter','Noto Sans Thai',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;font-size:15px;}
+.page{display:none;min-height:100vh;}
+.page.active{display:block;}
+
+/* NAV */
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(5,11,20,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border2);}
+.nav-logo{font-size:16px;font-weight:800;letter-spacing:-0.3px;color:var(--text);}
+.nav-logo span{color:var(--green);}
+.btn-admin-nav{font-size:12px;color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;background:transparent;cursor:pointer;transition:all .2s;}
+.btn-admin-nav:hover{color:var(--text);border-color:var(--blue);background:var(--blue-dim);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border-radius:var(--r);font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none;}
+.btn-primary{background:linear-gradient(135deg,#16A34A,#22C55E);color:#fff;box-shadow:0 4px 20px rgba(34,197,94,0.25);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(34,197,94,0.35);}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--blue);background:var(--blue-dim);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{color:var(--text);border-color:var(--border);}
+.btn-full{width:100%;}
+.btn-sm{padding:8px 16px;font-size:13px;}
+.btn-blue{background:linear-gradient(135deg,#0284C7,#38BDF8);color:#fff;box-shadow:0 4px 16px rgba(56,189,248,0.2);}
+.btn-blue:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(56,189,248,0.3);}
+.btn-danger{background:rgba(239,68,68,0.1);color:#EF4444;border:1px solid rgba(239,68,68,0.3);}
+.btn-danger:hover{background:rgba(239,68,68,0.2);}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px;}
+.card-glass{background:rgba(15,23,42,0.8);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:var(--r2);}
+
+/* FORM */
+.form-group{margin-bottom:18px;}
+.form-label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px;}
+.form-label span{color:var(--red);margin-left:2px;}
+.form-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;color:var(--text);font-size:14px;font-family:inherit;transition:border-color .2s,box-shadow .2s;outline:none;}
+.form-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(56,189,248,0.1);}
+.form-input::placeholder{color:var(--text3);}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394A3B8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.form-error{font-size:12px;color:var(--red);margin-top:4px;display:none;}
+.form-error.show{display:block;}
+.field-error .form-input,.field-error .form-select{border-color:var(--red);}
+
+/* CHECKBOX */
+.checkbox-wrap{display:flex;align-items:flex-start;gap:10px;cursor:pointer;}
+.checkbox-wrap input[type=checkbox]{display:none;}
+.checkbox-box{width:18px;height:18px;min-width:18px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-top:2px;background:transparent;}
+.checkbox-wrap input:checked+.checkbox-box{background:var(--green);border-color:var(--green);}
+.checkbox-wrap input:checked+.checkbox-box::after{content:'✓';font-size:11px;color:#fff;font-weight:700;}
+.checkbox-text{font-size:13px;color:var(--text2);line-height:1.5;}
+
+/* OPTION CARDS */
+.option-grid{display:flex;flex-direction:column;gap:8px;}
+.option-card{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);cursor:pointer;transition:all .2s;background:rgba(255,255,255,0.02);}
+.option-card:hover{border-color:var(--blue);background:var(--blue-dim);}
+.option-card.selected{border-color:var(--green);background:var(--green-dim);}
+.option-card.radio-selected{border-color:var(--green);background:var(--green-dim);}
+.option-indicator{width:18px;height:18px;min-width:18px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .2s;font-size:10px;}
+.option-card.selected .option-indicator,.option-card.radio-selected .option-indicator{background:var(--green);border-color:var(--green);color:#fff;}
+.option-card.selected .option-indicator::after,.option-card.radio-selected .option-indicator::after{content:'✓';}
+.option-radio .option-indicator{border-radius:4px;}
+.option-label{font-size:13px;color:var(--text);line-height:1.4;}
+.option-key{font-size:11px;font-weight:700;color:var(--text3);margin-right:4px;}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+.badge-healthy{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,0.3);}
+.badge-watch{background:rgba(245,158,11,0.12);color:var(--yellow);border:1px solid rgba(245,158,11,0.3);}
+.badge-sleep{background:rgba(239,68,68,0.12);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+
+/* PROGRESS BAR */
+.progress-bar-wrap{background:rgba(255,255,255,0.06);border-radius:10px;height:6px;overflow:hidden;}
+.progress-bar-fill{height:100%;border-radius:10px;transition:width .8s ease;}
+.fill-green{background:linear-gradient(90deg,#16A34A,#22C55E);}
+.fill-blue{background:linear-gradient(90deg,#0284C7,#38BDF8);}
+.fill-yellow{background:linear-gradient(90deg,#D97706,#F59E0B);}
+.fill-red{background:linear-gradient(90deg,#DC2626,#EF4444);}
+
+/* SCORE RING */
+.score-ring-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.score-ring{position:relative;width:100px;height:100px;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-ring-num .num{font-size:26px;font-weight:800;line-height:1;}
+.score-ring-num .label{font-size:10px;color:var(--text3);letter-spacing:0.5px;}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border2);margin:20px 0;}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 20px;font-size:13px;color:var(--text);z-index:999;transition:transform .3s;box-shadow:0 8px 24px rgba(0,0,0,0.4);white-space:nowrap;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:28px;width:100%;max-width:400px;}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:6px;}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:24px;}
+
+/* ======================== WELCOME PAGE ======================== */
+#page-welcome{padding-top:64px;}
+.hero-wrap{min-height:calc(100vh - 64px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;position:relative;overflow:hidden;}
+.hero-glow{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(ellipse,rgba(34,197,94,0.06) 0%,transparent 70%);pointer-events:none;}
+.hero-glow2{position:absolute;bottom:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(ellipse,rgba(56,189,248,0.05) 0%,transparent 70%);pointer-events:none;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-dim);border:1px solid rgba(34,197,94,0.2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;color:var(--green);margin-bottom:20px;letter-spacing:0.3px;}
+.hero-title{font-size:clamp(28px,6vw,48px);font-weight:900;line-height:1.15;letter-spacing:-1px;margin-bottom:12px;}
+.hero-title .accent{background:linear-gradient(135deg,#22C55E,#38BDF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:15px;color:var(--blue);font-weight:500;margin-bottom:10px;letter-spacing:0.3px;}
+.hero-desc{font-size:14px;color:var(--text2);max-width:400px;margin:0 auto 32px;line-height:1.7;}
+.hero-actions{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;margin:0 auto 40px;}
+.hero-preview{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;max-width:360px;width:100%;margin:0 auto;}
+.preview-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 10px;text-align:center;}
+.preview-card .pv-label{font-size:10px;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;}
+.preview-card .pv-val{font-size:18px;font-weight:800;}
+.pv-healthy{color:var(--green);}
+.pv-watch{color:var(--yellow);}
+.pv-sleep{color:var(--red);}
+.mini-score-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px;max-width:360px;width:100%;margin:16px auto 0;display:flex;align-items:center;gap:14px;}
+.mini-score-inner{flex:1;}
+.mini-score-title{font-size:11px;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;}
+.mini-score-bars{display:flex;flex-direction:column;gap:5px;}
+.mini-bar-row{display:flex;align-items:center;gap:8px;}
+.mini-bar-label{font-size:10px;color:var(--text3);width:80px;text-align:right;}
+.mini-bar-track{flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
+.mini-bar-fill{height:100%;border-radius:4px;}
+
+/* ======================== LEAD PAGE ======================== */
+#page-lead{padding-top:64px;}
+.form-page-wrap{max-width:560px;margin:0 auto;padding:32px 20px 60px;}
+.page-header{margin-bottom:28px;}
+.page-step{font-size:11px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;font-weight:600;margin-bottom:8px;}
+.page-title{font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;}
+.page-desc{font-size:13px;color:var(--text2);line-height:1.6;}
+.role-grid{display:flex;flex-direction:column;gap:8px;}
+
+/* ======================== QUESTIONS PAGE ======================== */
+#page-questions{padding-top:64px;}
+.q-wrap{max-width:600px;margin:0 auto;padding:32px 20px 60px;}
+.q-progress{margin-bottom:28px;}
+.q-progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:8px;}
+.q-progress-track{height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
+.q-progress-fill{height:100%;background:linear-gradient(90deg,#22C55E,#38BDF8);border-radius:4px;transition:width .4s ease;}
+.q-block{margin-bottom:28px;}
+.q-num{font-size:11px;color:var(--blue);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.q-title{font-size:16px;font-weight:700;margin-bottom:4px;line-height:1.4;}
+.q-subtitle{font-size:12px;color:var(--text3);margin-bottom:14px;}
+.q-error{font-size:12px;color:var(--red);margin-top:8px;display:none;}
+.q-error.show{display:block;}
+.q-actions{margin-top:32px;}
+
+/* ======================== REPORT PAGE ======================== */
+#page-report{padding-top:64px;background:var(--bg);}
+.report-actions-bar{display:flex;flex-wrap:wrap;gap:8px;padding:16px 20px;border-bottom:1px solid var(--border2);background:rgba(5,11,20,0.95);backdrop-filter:blur(12px);position:sticky;top:64px;z-index:50;}
+.report-wrap{max-width:480px;margin:0 auto;padding:24px 16px 60px;}
+.report-header{text-align:center;padding:28px 20px 20px;background:linear-gradient(180deg,rgba(34,197,94,0.05) 0%,transparent 100%);border-radius:var(--r2);border:1px solid var(--border);margin-bottom:16px;}
+.report-logo{font-size:13px;font-weight:800;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.report-logo span{color:var(--green);}
+.report-name{font-size:22px;font-weight:900;letter-spacing:-0.5px;margin-bottom:4px;}
+.report-company{font-size:13px;color:var(--text2);margin-bottom:16px;}
+.report-overall{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.overall-num{font-size:56px;font-weight:900;line-height:1;letter-spacing:-2px;}
+.overall-num.healthy{color:var(--green);}
+.overall-num.watch{color:var(--yellow);}
+.overall-num.sleep{color:var(--red);}
+.overall-label{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
+.report-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:12px;}
+.report-section-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.report-section-title::before{content:'';display:block;width:3px;height:12px;background:var(--green);border-radius:2px;}
+.exec-summary{font-size:13px;color:var(--text2);line-height:1.7;}
+.exec-summary p{margin-bottom:8px;}
+.exec-summary p:last-child{margin-bottom:0;}
+.profile-primary{background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(56,189,248,0.05));border:1px solid rgba(34,197,94,0.2);border-radius:var(--r);padding:12px;margin-bottom:10px;}
+.profile-tag{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--green);margin-bottom:4px;}
+.profile-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.profile-reason{font-size:12px;color:var(--text2);line-height:1.5;}
+.profile-secondary-list{display:flex;flex-direction:column;gap:8px;}
+.profile-secondary{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:var(--r);padding:10px;}
+.profile-secondary .profile-tag{color:var(--blue);}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.score-item{background:rgba(255,255,255,0.03);border-radius:var(--r);padding:12px;}
+.score-item-label{font-size:11px;color:var(--text3);margin-bottom:6px;}
+.score-item-num{font-size:20px;font-weight:800;margin-bottom:6px;}
+.findings-list{display:flex;flex-direction:column;gap:10px;}
+.finding-item{display:flex;gap:10px;align-items:flex-start;}
+.finding-dot{width:6px;height:6px;min-width:6px;border-radius:50%;background:var(--green);margin-top:6px;}
+.finding-text{font-size:13px;color:var(--text2);line-height:1.5;}
+.module-cards{display:flex;flex-direction:column;gap:10px;}
+.module-card{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:var(--r);padding:14px;}
+.module-card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.module-icon{font-size:16px;}
+.module-name{font-size:14px;font-weight:700;}
+.module-badge{font-size:10px;color:var(--green);background:var(--green-dim);border-radius:4px;padding:2px 6px;font-weight:600;}
+.module-why-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:3px;}
+.module-why-text{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:8px;}
+.module-first-label{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:3px;}
+.module-first-text{font-size:12px;color:var(--text2);line-height:1.5;}
+.plan-weeks{display:flex;flex-direction:column;gap:12px;}
+.plan-week{border-left:2px solid var(--border);padding-left:14px;}
+.plan-week-title{font-size:13px;font-weight:700;margin-bottom:6px;color:var(--text);}
+.plan-week-items{display:flex;flex-direction:column;gap:5px;}
+.plan-item{display:flex;gap:8px;align-items:flex-start;}
+.plan-dot{width:5px;height:5px;min-width:5px;border-radius:50%;background:var(--blue);margin-top:6px;}
+.plan-text{font-size:12px;color:var(--text2);line-height:1.5;}
+.followup-primary{background:linear-gradient(135deg,rgba(56,189,248,0.1),rgba(139,92,246,0.05));border:1px solid rgba(56,189,248,0.2);border-radius:var(--r);padding:12px;margin-bottom:8px;}
+.followup-tag{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--blue);margin-bottom:4px;}
+.followup-name{font-size:15px;font-weight:700;}
+.followup-secondary-list{display:flex;flex-direction:column;gap:8px;}
+.report-footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+
+/* ======================== ADMIN ======================== */
+#page-admin-login{padding-top:64px;display:none;min-height:100vh;align-items:center;justify-content:center;}
+#page-admin-login.active{display:flex;}
+.admin-login-box{width:100%;max-width:380px;padding:20px;}
+#page-admin{padding-top:64px;}
+.admin-wrap{max-width:1100px;margin:0 auto;padding:28px 16px 60px;}
+.admin-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;}
+.admin-title{font-size:22px;font-weight:800;}
+.admin-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px;}
+.stat-label{font-size:11px;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;}
+.stat-value{font-size:28px;font-weight:900;line-height:1;}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+.health-dist{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.health-pill{flex:1;min-width:80px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px;text-align:center;}
+.health-pill .hp-val{font-size:24px;font-weight:900;margin-bottom:4px;}
+.health-pill .hp-label{font-size:11px;color:var(--text3);}
+.filter-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+.filter-bar .form-input{max-width:200px;padding:8px 12px;font-size:13px;}
+.filter-bar .form-select{max-width:160px;padding:8px 28px 8px 12px;font-size:13px;}
+.table-wrap{overflow-x:auto;border-radius:var(--r2);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;}
+th{background:rgba(255,255,255,0.04);padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+.table-name{font-weight:600;color:var(--text);}
+.table-company{color:var(--text2);font-size:12px;}
+.table-btn{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.table-btn:hover{border-color:var(--blue);color:var(--blue);}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3);}
+.empty-state .es-icon{font-size:40px;margin-bottom:12px;}
+.empty-state .es-text{font-size:14px;}
+
+/* DETAIL MODAL */
+.detail-content{max-height:70vh;overflow-y:auto;padding-right:4px;}
+.detail-section{margin-bottom:16px;}
+.detail-section-title{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.detail-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--border2);}
+.detail-row:last-child{border-bottom:none;}
+.detail-key{font-size:12px;color:var(--text3);min-width:120px;}
+.detail-val{font-size:12px;color:var(--text);text-align:right;flex:1;}
+.answers-block{background:rgba(255,255,255,0.02);border-radius:var(--r);padding:12px;}
+.ans-item{margin-bottom:10px;}
+.ans-q{font-size:11px;font-weight:700;color:var(--text3);margin-bottom:4px;}
+.ans-a{font-size:12px;color:var(--text2);line-height:1.5;}
+
+/* PRINT */
+@media print{
+  @page{size:A4 portrait;margin:0;}
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  html{width:480px;}
+  body{background:#050B14 !important;margin:0;padding:0;width:480px;}
+  .top-nav,.report-actions-bar,#page-welcome,#page-lead,#page-questions,.btn,button,.modal-overlay,#ai-loading{display:none !important;}
+  #page-report{display:block !important;padding:0;width:480px;}
+  .report-wrap{max-width:480px;width:480px;padding:0;margin:0;}
+  #report-output{width:480px;background:#050B14;}
+}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .score-grid{grid-template-columns:1fr 1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .filter-bar .form-input,.filter-bar .form-select{max-width:100%;width:100%;}
+  th:nth-child(4),td:nth-child(4){display:none;}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <div class="nav-logo">Sales<span>yncs</span></div>
+  <button class="btn-admin-nav" onclick="showAdminLogin()">⚙ Admin Login</button>
+</nav>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ===================== PAGE: WELCOME ===================== -->
+<div id="page-welcome" class="page active">
+  <div class="hero-wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="hero-badge">✦ Free Business Assessment</div>
+    <h1 class="hero-title">Salesyncs<br><span class="accent">Business Health Check</span></h1>
+    <div class="hero-sub">AI Action Loop for B2B2C Partner Growth</div>
+    <p class="hero-desc">ประเมินสุขภาพธุรกิจของคุณใน 2 นาที พร้อมรับ Report สรุปปัญหา คะแนน และ Module ที่เหมาะกับธุรกิจของคุณ</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-full" onclick="showPage('page-lead')">
+        <span>▶</span> Start Business Health Check
+      </button>
+    </div>
+    <div style="margin-top:48px;font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;">Data • AI • Action • Growth</div>
+  </div>
+</div>
+
+<!-- ===================== PAGE: LEAD INFO ===================== -->
+<div id="page-lead" class="page">
+  <div class="form-page-wrap">
+    <div class="page-header">
+      <div class="page-step">Step 1 of 2 — ข้อมูลติดต่อ / Contact Info</div>
+      <h2 class="page-title">แนะนำตัวก่อนเริ่มเลย</h2>
+      <p class="page-desc">กรอกข้อมูลเพื่อรับ Report ส่วนตัวของคุณ<br>Fill in your details to receive your personalized report.</p>
+    </div>
+    <form id="lead-form" onsubmit="submitLeadForm(event)">
+      <div class="form-group" id="fg-name">
+        <label class="form-label">ชื่อ-นามสกุล / Full Name <span>*</span></label>
+        <input class="form-input" id="f-name" type="text" placeholder="e.g. สมชาย ใจดี">
+        <div class="form-error" id="err-name">กรุณากรอกชื่อ-นามสกุล / Full name is required</div>
+      </div>
+      <div class="form-group" id="fg-company">
+        <label class="form-label">บริษัท / Company <span>*</span></label>
+        <input class="form-input" id="f-company" type="text" placeholder="e.g. ABC Co., Ltd.">
+        <div class="form-error" id="err-company">กรุณากรอกชื่อบริษัท / Company is required</div>
+      </div>
+      <div class="form-group" id="fg-position">
+        <label class="form-label">ตำแหน่ง / Position <span>*</span></label>
+        <input class="form-input" id="f-position" type="text" placeholder="e.g. CEO, Sales Director">
+        <div class="form-error" id="err-position">กรุณากรอกตำแหน่ง / Position is required</div>
+      </div>
+      <div class="form-group" id="fg-phone">
+        <label class="form-label">เบอร์โทร / LINE ID <span>*</span></label>
+        <input class="form-input" id="f-phone" type="text" placeholder="e.g. 081-234-5678">
+        <div class="form-error" id="err-phone">กรุณากรอกเบอร์โทร / Phone is required</div>
+      </div>
+      <div class="form-group" id="fg-email">
+        <label class="form-label">อีเมล / Email <span>*</span></label>
+        <input class="form-input" id="f-email" type="email" placeholder="e.g. name@company.com">
+        <div class="form-error" id="err-email">กรุณากรอก Email ให้ถูกต้อง / Valid email is required</div>
+      </div>
+      <div class="form-group" id="fg-role">
+        <label class="form-label">คุณสนใจ Salesyncs หรือมางานนี้เพราะเรื่องไหนมากที่สุด? <span>*</span><br><span style="font-weight:400;color:var(--text3);font-size:11px;">What are you most interested in from Salesyncs or this event? (เลือกได้มากกว่า 1)</span></label>
+        <div class="role-grid" id="role-grid">
+          <div class="option-card" onclick="toggleInterest('A',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">A.</span> อยากดูว่า Salesyncs ช่วยเพิ่มยอดขาย / ดูแลลูกค้า / ดูแล Partner ได้อย่างไร<br><span style="font-size:10px;color:var(--text3);">Explore how Salesyncs can help grow revenue, customers, or partners</span></div></div>
+          <div class="option-card" onclick="toggleInterest('B',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">B.</span> สนใจทดลองใช้ระบบ / ทำ Pilot กับธุรกิจของเรา<br><span style="font-size:10px;color:var(--text3);">Interested in testing or piloting Salesyncs with our business</span></div></div>
+          <div class="option-card" onclick="toggleInterest('C',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">C.</span> สนใจเรื่องการลงทุน / การร่วมสนับสนุน / Funding<br><span style="font-size:10px;color:var(--text3);">Interested in investment, funding, or business support</span></div></div>
+          <div class="option-card" onclick="toggleInterest('D',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">D.</span> สนใจร่วมพัฒนาเทคโนโลยี / เชื่อมระบบ / Data / AI<br><span style="font-size:10px;color:var(--text3);">Interested in technology, integration, data, or AI partnership</span></div></div>
+          <div class="option-card" onclick="toggleInterest('E',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">E.</span> สนใจในมุมหน่วยงานรัฐ / โครงการนวัตกรรม / การสนับสนุน SME<br><span style="font-size:10px;color:var(--text3);">Interested from an innovation agency, government, or SME support perspective</span></div></div>
+          <div class="option-card" onclick="toggleInterest('F',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">F.</span> สนใจให้คำแนะนำ / Mentorship / Expert Feedback<br><span style="font-size:10px;color:var(--text3);">Interested in giving advice, mentorship, or expert feedback</span></div></div>
+          <div class="option-card" onclick="toggleInterest('G',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">G.</span> แค่มาเยี่ยมชม / อยากรู้ภาพรวมก่อน<br><span style="font-size:10px;color:var(--text3);">Just exploring or learning more</span></div></div>
+        </div>
+        <div class="form-error" id="err-role">กรุณาเลือกอย่างน้อย 1 ข้อ / Please select at least one</div>
+      </div>
+      <div class="form-group" id="fg-consent">
+        <div class="checkbox-wrap" onclick="toggleConsent()" style="cursor:pointer;">
+          <div class="checkbox-box" id="consent-box"></div>
+          <div class="checkbox-text">ยินยอมให้ทีม Salesyncs ติดต่อกลับเพื่อส่ง Report / นัดคุยต่อ<br><span style="color:var(--text3);">I agree to be contacted by Salesyncs team for report delivery.</span></div>
+        </div>
+        <div class="form-error" id="err-consent">กรุณายินยอมเงื่อนไขก่อน / Consent is required</div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px;">
+        ถัดไป — ตอบคำถาม &nbsp;→
+      </button>
+    </form>
+    <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="showPage('page-welcome')">← กลับ / Back</button>
+  </div>
+</div>
+
+<!-- ===================== PAGE: QUESTIONS ===================== -->
+<div id="page-questions" class="page">
+  <div class="q-wrap">
+    <div class="q-progress">
+      <div class="q-progress-label">
+        <span id="q-progress-text">Question 1 of 5</span>
+        <span id="q-progress-pct">20%</span>
+      </div>
+      <div class="q-progress-track"><div class="q-progress-fill" id="q-progress-fill" style="width:20%"></div></div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="q-block card" id="q-block-1">
+      <div class="q-num">Question 1 / 5</div>
+      <div class="q-title">ธุรกิจของคุณขายผ่านช่องทางแบบไหนเป็นหลัก?</div>
+      <div class="q-subtitle">What are your primary sales channels? — เลือกได้มากกว่า 1 ข้อ / Select all that apply</div>
+      <div class="option-grid" id="q1-options">
+        <div class="option-card" onclick="toggleMulti('q1','A',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">A.</span> ขายตรงให้ลูกค้าปลายทาง / Direct to end customers</div></div>
+        <div class="option-card" onclick="toggleMulti('q1','B',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">B.</span> ขายผ่าน Partner / Dealer / Distributor</div></div>
+        <div class="option-card" onclick="toggleMulti('q1','C',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">C.</span> ขายผ่านสาขา / ศูนย์บริการ / Franchise</div></div>
+        <div class="option-card" onclick="toggleMulti('q1','D',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">D.</span> ขายแบบมีทีมขายดูแลลูกค้าซ้ำ / Recurring customer team</div></div>
+        <div class="option-card" onclick="toggleMulti('q1','E',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">E.</span> ขายแบบมีสินค้า / อุปกรณ์วางไว้กับลูกค้า / Equipment placed at customer</div></div>
+        <div class="option-card" onclick="toggleMulti('q1','F',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">F.</span> ยังไม่แน่ใจ / หลายช่องทาง / Multiple / unsure</div></div>
+      </div>
+      <div class="q-error" id="q1-error">กรุณาเลือกอย่างน้อย 1 ข้อ / Please select at least one option</div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-block card" id="q-block-2" style="display:none">
+      <div class="q-num">Question 2 / 5</div>
+      <div class="q-title">ปัญหาหลักที่คุณอยากแก้ตอนนี้คืออะไร?</div>
+      <div class="q-subtitle">What are your main business challenges right now? — เลือกได้มากกว่า 1 ข้อ / Select all that apply</div>
+      <div class="option-grid" id="q2-options">
+        <div class="option-card" onclick="toggleMulti('q2','A',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">A.</span> ลูกค้าเก่าเริ่มหาย / ไม่ซื้อซ้ำ / Losing existing customers</div></div>
+        <div class="option-card" onclick="toggleMulti('q2','B',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">B.</span> Partner / Dealer / ศูนย์ ไม่ค่อยช่วย Push ขาย / Partners not pushing sales</div></div>
+        <div class="option-card" onclick="toggleMulti('q2','C',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">C.</span> ยอดขายซื้อซ้ำไม่สม่ำเสมอ / Inconsistent repeat revenue</div></div>
+        <div class="option-card" onclick="toggleMulti('q2','D',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">D.</span> ทีมขาย Follow-up ไม่ทัน / Sales team can't follow up in time</div></div>
+        <div class="option-card" onclick="toggleMulti('q2','E',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">E.</span> ไม่รู้ว่าควรติดต่อใครก่อน / No clear prioritization system</div></div>
+        <div class="option-card" onclick="toggleMulti('q2','F',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">F.</span> ข้อมูลกระจัดกระจาย / ไม่มี Dashboard กลาง / Scattered data, no central dashboard</div></div>
+        <div class="option-card" onclick="toggleMulti('q2','G',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">G.</span> มีคู่แข่งเข้ามาแย่งลูกค้า / Competitors stealing customers</div></div>
+        <div class="option-card" onclick="toggleMulti('q2','H',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">H.</span> อยากใช้ AI แต่ยังไม่รู้จะเริ่มตรงไหน / Want AI but don't know where to start</div></div>
+      </div>
+      <div class="q-error" id="q2-error">กรุณาเลือกอย่างน้อย 1 ข้อ / Please select at least one option</div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-block card" id="q-block-3" style="display:none">
+      <div class="q-num">Question 3 / 5</div>
+      <div class="q-title">ตอนนี้คุณมีข้อมูลลูกค้า / Partner / ยอดขายอยู่ในรูปแบบไหน?</div>
+      <div class="q-subtitle">In what format do you currently have customer/sales data? — เลือกได้มากกว่า 1 ข้อ / Select all that apply</div>
+      <div class="option-grid" id="q3-options">
+        <div class="option-card" onclick="toggleMulti('q3','A',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">A.</span> Excel / Google Sheet</div></div>
+        <div class="option-card" onclick="toggleMulti('q3','B',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">B.</span> POS / ERP / CRM</div></div>
+        <div class="option-card" onclick="toggleMulti('q3','C',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">C.</span> รายงานจากทีมขาย / Sales team reports</div></div>
+        <div class="option-card" onclick="toggleMulti('q3','D',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">D.</span> ข้อมูลอยู่กับหลายทีม ยังไม่รวมกัน / Siloed across multiple teams</div></div>
+        <div class="option-card" onclick="toggleMulti('q3','E',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">E.</span> มีข้อมูล แต่ยังไม่ได้ใช้วิเคราะห์ / Have data but not yet analyzed</div></div>
+        <div class="option-card" onclick="toggleMulti('q3','F',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">F.</span> ยังไม่มีข้อมูลที่เป็นระบบ / No structured data yet</div></div>
+      </div>
+      <div class="q-error" id="q3-error">กรุณาเลือกอย่างน้อย 1 ข้อ / Please select at least one option</div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="q-block card" id="q-block-4" style="display:none">
+      <div class="q-num">Question 4 / 5</div>
+      <div class="q-title">ตอนนี้ทีมรู้ไหมว่าต้อง Follow-up ใครก่อน และงานถูกตามต่อจริงไหม?</div>
+      <div class="q-subtitle">Does your team know who to follow up first, and does it actually happen? — เลือก 1 ข้อ / Select one</div>
+      <div class="option-grid" id="q4-options">
+        <div class="option-card option-radio" onclick="selectRadio('q4','A',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">A.</span> รู้ชัด มีระบบติดตามงานอยู่แล้ว / Clear system already in place</div></div>
+        <div class="option-card option-radio" onclick="selectRadio('q4','B',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">B.</span> พอรู้ แต่ยังต้องดูเองจาก Excel / Report / Somewhat, done manually</div></div>
+        <div class="option-card option-radio" onclick="selectRadio('q4','C',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">C.</span> รู้ตอนยอดตกไปแล้ว / Only know when revenue drops</div></div>
+        <div class="option-card option-radio" onclick="selectRadio('q4','D',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">D.</span> ไม่ค่อยรู้ ต้องรอหัวหน้าหรือเซลล์บอก / Rarely, wait for manager or sales to inform</div></div>
+        <div class="option-card option-radio" onclick="selectRadio('q4','E',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">E.</span> ยังไม่มีระบบ Assign / Follow-up / Feedback ที่ชัดเจน / No clear system at all</div></div>
+      </div>
+      <div class="q-error" id="q4-error">กรุณาเลือก 1 ข้อ / Please select one option</div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="q-block card" id="q-block-5" style="display:none">
+      <div class="q-num">Question 5 / 5</div>
+      <div class="q-title">ถ้าจะให้ Salesyncs ช่วยก่อน คุณอยากให้ช่วยเรื่องไหนมากที่สุด?</div>
+      <div class="q-subtitle">Where would you like Salesyncs to help you first? — เลือกได้มากกว่า 1 ข้อ / Select all that apply</div>
+      <div class="option-grid" id="q5-options">
+        <div class="option-card" onclick="toggleMulti('q5','A',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">A.</span> ดูภาพรวมผู้บริหาร / Executive Dashboard</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','B',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">B.</span> รวมข้อมูลลูกค้า / Partner ให้เป็นแฟ้มกลาง / Central customer &amp; partner data</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','C',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">C.</span> วิเคราะห์สถานะลูกค้า / Partner (Healthy, Watch, Sleep)</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','D',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">D.</span> ให้ AI แนะนำว่าควรทำอะไรต่อ / AI-powered next actions</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','E',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">E.</span> ติดตามงานที่ Manager Assign ให้ทีมขาย / Sales task tracking</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','F',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">F.</span> ทำ Campaign กระตุ้นยอดขายที่ศูนย์ / Campaigns to drive sales</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','G',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">G.</span> หา Lead B2B ใหม่ / Find new B2B leads</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','H',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">H.</span> คำนวณค่าคอมเพื่อกระตุ้นทีมขาย / Frontline / Commission calculator</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','I',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">I.</span> เก็บข้อมูลคู่แข่งและให้ AI สรุป / Competitor intelligence</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','J',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">J.</span> วัดผลงาน Frontline / SA / Frontline performance tracking</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','K',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">K.</span> เช็กการใช้งานเครื่อง / อุปกรณ์ที่วางไว้ / Equipment usage monitoring</div></div>
+        <div class="option-card" onclick="toggleMulti('q5','L',this)"><div class="option-indicator"></div><div class="option-label"><span class="option-key">L.</span> ตรวจข้อมูลผิดปกติ / Anomaly &amp; abnormal detection</div></div>
+      </div>
+      <div class="q-error" id="q5-error">กรุณาเลือกอย่างน้อย 1 ข้อ / Please select at least one option</div>
+    </div>
+
+    <!-- NAV BUTTONS -->
+    <div class="q-actions" style="display:flex;flex-direction:column;gap:10px;margin-top:24px;">
+      <button class="btn btn-primary btn-full" id="q-next-btn" onclick="nextQuestion()" style="font-size:15px;padding:15px;">
+        ถัดไป →
+      </button>
+      <button class="btn btn-ghost btn-full" id="q-back-btn" onclick="prevQuestion()">← ย้อนกลับ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE: REPORT ===================== -->
+<div id="page-report" class="page">
+  <div class="report-wrap" id="report-output"></div>
+</div>
+
+<!-- ===================== AI LOADING OVERLAY ===================== -->
+<div id="ai-loading" style="display:none;position:fixed;inset:0;background:#050B14;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:24px;">
+  <div style="width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#38BDF8,#22C55E);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:#fff;box-shadow:0 0 40px rgba(34,197,94,0.3);">S</div>
+  <div id="ai-loading-text" style="font-size:18px;font-weight:700;color:#fff;text-align:center;min-height:28px;"></div>
+  <div style="width:220px;height:4px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+    <div id="ai-loading-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#38BDF8,#22C55E);border-radius:99px;transition:width 0.6s ease;"></div>
+  </div>
+  <div id="ai-loading-sub" style="font-size:12px;color:var(--text3);text-align:center;"></div>
+</div>
+
+<!-- ===================== PAGE: ADMIN LOGIN ===================== -->
+<div id="page-admin-login" class="page">
+  <div class="admin-login-box">
+    <div class="card">
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="font-size:13px;font-weight:800;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">SALES<span style="color:var(--green);">YNCS</span></div>
+        <h2 style="font-size:22px;font-weight:800;">Admin Login</h2>
+        <p style="font-size:13px;color:var(--text2);margin-top:4px;">เข้าระบบหลังบ้าน / Dashboard Access</p>
+      </div>
+      <div class="form-group" id="fg-au">
+        <label class="form-label">Username</label>
+        <input class="form-input" id="admin-user" type="text" placeholder="admin" onkeydown="if(event.key==='Enter')adminLogin()">
+      </div>
+      <div class="form-group" id="fg-ap">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="admin-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()">
+      </div>
+      <div id="admin-error" style="font-size:13px;color:var(--red);margin-bottom:12px;display:none;">Username หรือ Password ไม่ถูกต้อง</div>
+      <button class="btn btn-primary btn-full" onclick="adminLogin()">เข้าสู่ระบบ / Login</button>
+      <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="showPage('page-welcome')">← กลับหน้าหลัก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE: ADMIN DASHBOARD ===================== -->
+<div id="page-admin" class="page">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:4px;">Salesyncs Admin</div>
+        <h1 class="admin-title">Lead Dashboard</h1>
+      </div>
+      <div class="admin-actions">
+        <button class="btn btn-secondary btn-sm" onclick="refreshAdmin()">↻ Refresh</button>
+        <button class="btn btn-blue btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn btn-danger btn-sm" onclick="clearLeads()">🗑 Clear Leads</button>
+        <button class="btn btn-ghost btn-sm" onclick="adminLogout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="health-dist" id="health-dist"></div>
+    <div id="role-chart" style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:20px;"></div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:20px;">
+      <div id="chart-modules" style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:14px;padding:16px 20px;"></div>
+      <div id="chart-problems" style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:14px;padding:16px 20px;"></div>
+    </div>
+
+    <div class="filter-bar">
+      <input class="form-input" id="filter-date-from" type="date" onchange="renderLeadsTable()" style="max-width:160px;" title="From">
+      <input class="form-input" id="filter-date-to" type="date" onchange="renderLeadsTable()" style="max-width:160px;" title="To">
+    </div>
+
+    <div class="table-wrap">
+      <table id="leads-table">
+        <thead>
+          <tr>
+            <th>ชื่อ / Name</th>
+            <th>บริษัท / Company</th>
+            <th>Role</th>
+            <th>วันที่</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="leads-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal" style="max-width:520px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div class="modal-title" id="detail-modal-title">Lead Detail</div>
+      <button onclick="closeDetailModal()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div class="detail-content" id="detail-modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let currentLead = {};
+let currentAnswers = { q1:[], q2:[], q3:[], q4:'', q5:[] };
+let currentReportData = null;
+let selectedInterests = [];
+let consentGiven = false;
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showAdminLogin() {
+  showPage('page-admin-login');
+}
+
+// ============================================================
+// LEAD FORM
+// ============================================================
+function toggleInterest(val, el) {
+  const idx = selectedInterests.indexOf(val);
+  if(idx === -1) {
+    selectedInterests.push(val);
+    el.classList.add('selected');
+    el.querySelector('.option-indicator').innerHTML = '✓';
+  } else {
+    selectedInterests.splice(idx, 1);
+    el.classList.remove('selected');
+    el.querySelector('.option-indicator').innerHTML = '';
+  }
+  if(selectedInterests.length > 0) {
+    document.getElementById('err-role').classList.remove('show');
+    document.getElementById('fg-role').classList.remove('field-error');
+  }
+}
+
+function inferLeadTypeFromInterest(interests) {
+  const priority = ['C','B','A','D','E','F','G'];
+  const typeMap = {
+    A: { lead_type:'Business Owner / Customer',    follow_up:'Pilot Discovery' },
+    B: { lead_type:'Pilot Candidate',              follow_up:'Pilot Discovery' },
+    C: { lead_type:'Investor / Funding Partner',   follow_up:'Investor Brief' },
+    D: { lead_type:'Tech / Software / Data Partner',follow_up:'Technical Discovery' },
+    E: { lead_type:'Government / Innovation Agency',follow_up:'Project Impact One-Pager' },
+    F: { lead_type:'Advisor / Mentor / Expert',    follow_up:'Expert Feedback Session' },
+    G: { lead_type:'Visitor / Other',              follow_up:'Introductory Follow-up' }
+  };
+  const primary = priority.find(p => interests.includes(p)) || 'G';
+  return { lead_type: typeMap[primary].lead_type, follow_up: typeMap[primary].follow_up, primary_key: primary };
+}
+
+function toggleConsent() {
+  consentGiven = !consentGiven;
+  const box = document.getElementById('consent-box');
+  box.innerHTML = consentGiven ? '✓' : '';
+  box.style.background = consentGiven ? 'var(--green)' : '';
+  box.style.borderColor = consentGiven ? 'var(--green)' : '';
+  if(consentGiven) {
+    document.getElementById('err-consent').classList.remove('show');
+    document.getElementById('fg-consent').classList.remove('field-error');
+  }
+}
+
+function submitLeadForm(e) {
+  e.preventDefault();
+  let valid = true;
+
+  const fields = [
+    {id:'f-name',err:'err-name',fg:'fg-name',check:v=>v.trim().length>0},
+    {id:'f-company',err:'err-company',fg:'fg-company',check:v=>v.trim().length>0},
+    {id:'f-position',err:'err-position',fg:'fg-position',check:v=>v.trim().length>0},
+    {id:'f-phone',err:'err-phone',fg:'fg-phone',check:v=>v.trim().length>0},
+    {id:'f-email',err:'err-email',fg:'fg-email',check:v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)},
+  ];
+
+  fields.forEach(f => {
+    const val = document.getElementById(f.id).value;
+    if(!f.check(val)) {
+      document.getElementById(f.err).classList.add('show');
+      document.getElementById(f.fg).classList.add('field-error');
+      valid = false;
+    } else {
+      document.getElementById(f.err).classList.remove('show');
+      document.getElementById(f.fg).classList.remove('field-error');
+    }
+  });
+
+  if(selectedInterests.length === 0) {
+    document.getElementById('err-role').classList.add('show');
+    document.getElementById('fg-role').classList.add('field-error');
+    valid = false;
+  }
+
+  if(!consentGiven) {
+    document.getElementById('err-consent').classList.add('show');
+    document.getElementById('fg-consent').classList.add('field-error');
+    valid = false;
+  }
+
+  if(!valid) return;
+
+  currentLead = {
+    name: document.getElementById('f-name').value.trim(),
+    company: document.getElementById('f-company').value.trim(),
+    position: document.getElementById('f-position').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    role: inferLeadTypeFromInterest(selectedInterests).primary_key,
+    interests: [...selectedInterests]
+  };
+
+  currentAnswers = { q1:[], q2:[], q3:[], q4:'', q5:[] };
+  document.querySelectorAll('.option-card.selected,.option-card.radio-selected').forEach(c=>{
+    c.classList.remove('selected','radio-selected');
+    c.querySelector('.option-indicator').innerHTML='';
+  });
+  updateQProgress();
+  currentQ = 1;
+  showPage('page-questions');
+  showQuestion(1);
+}
+
+// ============================================================
+// QUESTIONS
+// ============================================================
+function toggleMulti(qKey, val, el) {
+  const arr = currentAnswers[qKey];
+  const idx = arr.indexOf(val);
+  if(idx > -1) {
+    arr.splice(idx,1);
+    el.classList.remove('selected');
+    el.querySelector('.option-indicator').innerHTML = '';
+  } else {
+    arr.push(val);
+    el.classList.add('selected');
+    el.querySelector('.option-indicator').innerHTML = '✓';
+  }
+  document.getElementById(qKey+'-error').classList.remove('show');
+  updateQProgress();
+}
+
+function selectRadio(qKey, val, el) {
+  currentAnswers[qKey] = val;
+  document.querySelectorAll('#'+qKey+'-options .option-card').forEach(c=>{
+    c.classList.remove('radio-selected');
+    c.querySelector('.option-indicator').innerHTML='';
+  });
+  el.classList.add('radio-selected');
+  el.querySelector('.option-indicator').innerHTML='●';
+  document.getElementById(qKey+'-error').classList.remove('show');
+  updateQProgress();
+}
+
+// ============================================================
+// WIZARD NAVIGATION
+// ============================================================
+let currentQ = 1;
+
+function showQuestion(n) {
+  for(let i = 1; i <= 5; i++) {
+    document.getElementById('q-block-'+i).style.display = i === n ? 'block' : 'none';
+  }
+  currentQ = n;
+  const pct = Math.round(n / 5 * 100);
+  document.getElementById('q-progress-text').textContent = 'Question '+n+' of 5';
+  document.getElementById('q-progress-pct').textContent = pct+'%';
+  document.getElementById('q-progress-fill').style.width = pct+'%';
+
+  const nextBtn = document.getElementById('q-next-btn');
+  const backBtn = document.getElementById('q-back-btn');
+  nextBtn.textContent = n === 5 ? '✦ Generate My Report' : 'ถัดไป →';
+  backBtn.textContent = n === 1 ? '← กลับแก้ข้อมูล' : '← ย้อนกลับ';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function validateCurrentQ() {
+  const qKey = 'q'+currentQ;
+  const errEl = document.getElementById(qKey+'-error');
+  const ans = currentAnswers[qKey];
+  const valid = currentQ === 4 ? !!ans : (Array.isArray(ans) && ans.length > 0);
+  if (!valid) {
+    errEl.classList.add('show');
+    errEl.scrollIntoView({behavior:'smooth', block:'center'});
+    return false;
+  }
+  errEl.classList.remove('show');
+  return true;
+}
+
+function nextQuestion() {
+  if (!validateCurrentQ()) return;
+  if (currentQ < 5) {
+    showQuestion(currentQ + 1);
+  } else {
+    generateReport();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 1) {
+    showQuestion(currentQ - 1);
+  } else {
+    showPage('page-lead');
+  }
+}
+
+function updateQProgress() {
+  // keeps existing callers working — actual progress now driven by showQuestion()
+}
+
+function generateReport() {
+  const steps = [
+    { text: '🔍 กำลังวิเคราะห์ข้อมูลธุรกิจ...', sub: 'Scanning business profile', pct: 20 },
+    { text: '📊 คำนวณ Business Health Score...', sub: 'Running 6-dimension scoring engine', pct: 45 },
+    { text: '🤖 AI กำลังระบุปัญหาหลัก...', sub: 'Matching patterns across revenue, retention & AI readiness', pct: 65 },
+    { text: '🧩 เลือก Module ที่เหมาะสม...', sub: 'Mapping recommended Salesyncs modules', pct: 82 },
+    { text: '✅ สร้าง Report เสร็จแล้ว!', sub: 'Preparing your personalized report', pct: 100 },
+  ];
+
+  const overlay = document.getElementById('ai-loading');
+  const textEl = document.getElementById('ai-loading-text');
+  const subEl = document.getElementById('ai-loading-sub');
+  const barEl = document.getElementById('ai-loading-bar');
+
+  overlay.style.display = 'flex';
+
+  let i = 0;
+  function runStep() {
+    if(i >= steps.length) {
+      try {
+        const scores = calcScores(currentAnswers);
+        const profiles = getProfiles(currentAnswers.q2);
+        const modules = getRecommendedModules(currentAnswers);
+        const followUp = getFollowUp(currentLead.role || 'G', currentAnswers.q2);
+        const findings = getFindings(currentAnswers, scores);
+        const execSummary = getExecSummary(currentLead, currentAnswers, scores, profiles);
+        const actionPlan = getActionPlan(currentAnswers, modules);
+        const reportData = { lead:currentLead, answers:currentAnswers, scores, profiles, modules, followUp, findings, execSummary, actionPlan };
+        renderReportPage(reportData);
+        overlay.style.display = 'none';
+        showPage('page-report');
+        try { saveLead(reportData); } catch(e) { console.warn('saveLead failed:', e); }
+      } catch(err) {
+        overlay.style.display = 'none';
+        console.error('generateReport error:', err);
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+      }
+      return;
+    }
+    const s = steps[i];
+    textEl.textContent = s.text;
+    subEl.textContent = s.sub;
+    barEl.style.width = s.pct + '%';
+    i++;
+    setTimeout(runStep, i === steps.length ? 600 : 700);
+  }
+  runStep();
+}
+
+// ============================================================
+// BUSINESS LOGIC
+// ============================================================
+function calcScores(ans) {
+  let s = { revenue:75, retention:75, partner:75, data:75, sales:75, ai:75 };
+  const {q1,q2,q3,q4,q5} = ans;
+
+  // Revenue
+  if(q2.includes('A')) s.revenue -= 12;
+  if(q2.includes('B')) s.revenue -= 12;
+  if(q2.includes('C')) s.revenue -= 8;
+  if(q2.includes('G')) s.revenue -= 10;
+  if(['B','C','D','E'].some(x=>q1.includes(x))) s.revenue += 5;
+
+  // Retention
+  if(q2.includes('A')) s.retention -= 20;
+  if(q2.includes('C')) s.retention -= 15;
+  if(['C','D','E'].includes(q4)) s.retention -= 10;
+
+  // Partner
+  if(q2.includes('B')) s.partner -= 20;
+  if((q1.includes('B')||q1.includes('C')) && q2.includes('B')) s.partner -= 10;
+  if(['F','J','K'].some(x=>q5.includes(x))) s.partner -= 5;
+
+  // Data
+  if(q3.includes('B')) s.data += 15;
+  if(q3.includes('D')) s.data -= 12;
+  if(q3.includes('E')) s.data -= 8;
+  if(q3.includes('F')) s.data -= 20;
+
+  // Sales
+  if(q2.includes('D')) s.sales -= 15;
+  if(q2.includes('E')) s.sales -= 10;
+  const q4adj = {A:10,B:0,C:-10,D:-20,E:-25};
+  s.sales += (q4adj[q4]||0);
+
+  // AI
+  if(q2.includes('H')) s.ai -= 20;
+  if(q3.includes('B')||q3.includes('E')) s.ai += 10;
+  if(q5.includes('C')||q5.includes('D')) s.ai += 10;
+
+  Object.keys(s).forEach(k=>{ s[k]=Math.max(10,Math.min(100,Math.round(s[k]))); });
+  const overall = Math.round(Object.values(s).reduce((a,b)=>a+b,0)/6);
+  const health = overall>=80?'Healthy':overall>=60?'Watch':'Sleep';
+  return {...s, overall, health};
+}
+
+const PROFILE_MAP = {
+  A:{name:'ลูกค้าเก่าเริ่มหาย',reason:'ธุรกิจมีสัญญาณลูกค้าหลุดหาย ควรเร่งระบบ Retention และ Follow-up'},
+  B:{name:'Partner ขายไม่เต็มศักยภาพ',reason:'ช่องทาง Partner/Dealer ยังไม่ถูก Activate อย่างเต็มที่'},
+  C:{name:'รายได้ซื้อซ้ำหลุดระหว่างทาง',reason:'Repeat Revenue หลุดออกจากระบบ ต้องปิด Gap ในขั้นตอน Follow-up'},
+  D:{name:'ทีมขายตามลูกค้าไม่ทัน',reason:'Sales Execution ช้ากว่าที่ควร ขาด Priority ที่ชัดเจน'},
+  E:{name:'ขาดระบบจัดลำดับความสำคัญ',reason:'ไม่มีระบบ Prioritization ทำให้ทีมขายเสียเวลากับงานที่ไม่ให้ผลตอบแทนสูง'},
+  F:{name:'ข้อมูลมี แต่ยังใช้ไม่เต็มที่',reason:'มี Raw Data แต่ยังไม่ถูกแปลงเป็น Actionable Insight'},
+  G:{name:'Partner เสี่ยงจากคู่แข่ง',reason:'คู่แข่งกำลัง Disrupt ช่องทาง ต้องสร้างความได้เปรียบเชิงข้อมูล'},
+  H:{name:'AI Readiness Gap',reason:'องค์กรพร้อมใช้ AI แต่ยังขาด Framework และ Starting Point ที่ชัดเจน'}
+};
+
+const PRIORITY_ORDER = ['B','A','C','D','E','F','G','H'];
+
+function getProfiles(q2) {
+  const sorted = PRIORITY_ORDER.filter(p=>q2.includes(p));
+  const primary = sorted[0] ? PROFILE_MAP[sorted[0]] : {name:'ธุรกิจกำลังเติบโต',reason:'ระบบโดยรวมมีสุขภาพดี แนะนำเพิ่ม Automation'};
+  const secondary = sorted.slice(1,3).map(p=>PROFILE_MAP[p]);
+  return {primary, secondary, primaryKey: sorted[0]||''};
+}
+
+const Q2_MODULES = {
+  A:['Customer Data','Customer Status','AI Recommendations','Action Board'],
+  B:['Customer Status','AI Recommendations','Action Board','Campaigns','Frontline Performance'],
+  C:['Customer Data','Customer Status','AI Recommendations','Commission Calculator'],
+  D:['AI Recommendations','Action Board','Executive Dashboard'],
+  E:['Executive Dashboard','Customer Status','AI Recommendations','Action Board'],
+  F:['Customer Data','Executive Dashboard','Customer Status'],
+  G:['Competitors Report','Customer Status','AI Recommendations','Campaigns'],
+  H:['Customer Data','Customer Status','AI Recommendations']
+};
+
+const Q5_MODULES = {
+  A:'Executive Dashboard',B:'Customer Data',C:'Customer Status',D:'AI Recommendations',
+  E:'Action Board',F:'Campaigns',G:'Find New B2B Leads',H:'Commission Calculator',
+  I:'Competitors Report',J:'Frontline Performance',K:'Equipments Usage',L:'Abnormal Detection'
+};
+
+const VALID_MODULES = ['Executive Dashboard','Customer Data','Customer Status','AI Recommendations','Action Board','Campaigns','Find New B2B Leads','Commission Calculator','Competitors Report','Frontline Performance','Equipments Usage','Abnormal Detection'];
+
+function getRecommendedModules(ans) {
+  const {q2,q5} = ans;
+  const sorted = PRIORITY_ORDER.filter(p=>q2.includes(p));
+  let list = [];
+  sorted.forEach(k=>{ (Q2_MODULES[k]||[]).forEach(m=>{ if(!list.includes(m)) list.push(m); }); });
+  q5.forEach(k=>{ const m=Q5_MODULES[k]; if(m&&!list.includes(m)) list.push(m); });
+  list = list.filter(m=>VALID_MODULES.includes(m));
+  return list.slice(0,5);
+}
+
+function getFollowUp(role, q2) {
+  const roleMap = {A:'Pilot Discovery',B:'Pilot Discovery',C:'Investor Brief',D:'Technical Discovery',E:'Project Impact One-Pager',F:'Expert Feedback Session',G:'Introductory Follow-up'};
+  let dirs = [];
+  if(roleMap[role]) dirs.push(roleMap[role]);
+  if(q2.includes('F')&&!dirs.includes('Data Readiness Review')) dirs.push('Data Readiness Review');
+  if(q2.includes('B')&&!dirs.includes('Partner Growth Workshop')) dirs.push('Partner Growth Workshop');
+  if(q2.includes('H')&&!dirs.includes('AI Use Case Mapping')) dirs.push('AI Use Case Mapping');
+  return {primary:dirs[0]||'Pilot Discovery', secondary:dirs.slice(1,3)};
+}
+
+const CHANNEL_LABELS = {A:'ลูกค้าปลายทางโดยตรง',B:'Partner/Dealer/Distributor',C:'สาขา/ศูนย์/Franchise',D:'ทีมขายดูแลลูกค้าซ้ำ',E:'สินค้า/อุปกรณ์ที่วางไว้กับลูกค้า',F:'หลายช่องทาง'};
+const PROBLEM_LABELS = {A:'ลูกค้าเก่าหาย',B:'Partner ไม่ Push ขาย',C:'ยอดซื้อซ้ำไม่สม่ำเสมอ',D:'ทีมขาย Follow-up ไม่ทัน',E:'ขาดระบบจัดลำดับ',F:'ข้อมูลกระจัดกระจาย',G:'คู่แข่งแย่งลูกค้า',H:'AI Readiness Gap'};
+
+function getExecSummary(lead, ans, scores, profiles) {
+  const channels = ans.q1.map(c=>CHANNEL_LABELS[c]).filter(Boolean).join(', ');
+  const problems = ans.q2.map(p=>PROBLEM_LABELS[p]).filter(Boolean).join(', ');
+  const hlTH = scores.health==='Healthy'?'สุขภาพดี':scores.health==='Watch'?'ต้องเฝ้าระวัง':'ต้องเร่งแก้ไข';
+  return [
+    `${lead.company} ดำเนินธุรกิจผ่านช่องทางหลัก: ${channels||'หลายช่องทาง'}`,
+    `ปัญหาหลักที่ต้องการแก้ไขคือ: ${problems||'ปรับปรุงระบบภาพรวม'}`,
+    `คะแนนสุขภาพธุรกิจโดยรวม ${scores.overall}/100 อยู่ในระดับ "${hlTH}" (${scores.health})`,
+    `จุดที่ควรเริ่มก่อนคือ "${profiles.primary.name}" — ${profiles.primary.reason}`
+  ];
+}
+
+function getFindings(ans, scores) {
+  const f = [];
+  if(ans.q2.includes('A')||ans.q2.includes('C')) f.push('Customer Retention ต่ำกว่าเกณฑ์ — มีความเสี่ยงที่จะสูญเสียรายได้ซ้ำในอนาคต');
+  if(ans.q2.includes('B')) f.push('Partner Activation ยังไม่เต็มศักยภาพ — ควรสร้างระบบ Incentive และติดตามงานให้ Partner ชัดขึ้น');
+  if(['D','E'].includes(ans.q4)) f.push('Sales Execution มีช่องว่างสำคัญ — ทีมขายขาดระบบ Follow-up และ Assign งานที่ชัดเจน');
+  if(ans.q3.includes('D')||ans.q3.includes('E')||ans.q3.includes('F')) f.push('Data Readiness ต่ำกว่าเป้า — ข้อมูลยังไม่รวมศูนย์หรือไม่ถูกนำมาวิเคราะห์');
+  if(ans.q2.includes('H')) f.push('AI Readiness Gap — องค์กรพร้อมเปลี่ยน แต่ยังขาด Framework เริ่มต้นที่ชัดเจน');
+  if(ans.q2.includes('G')) f.push('ภัยคุกคามจากคู่แข่งสูง — ควรสร้าง Competitive Intelligence อย่างเร่งด่วน');
+  if(scores.overall>=80) f.push('ภาพรวมธุรกิจมีสุขภาพดี — โอกาสต่อไปคือ Scale ด้วย AI Automation');
+  return f.slice(0,5).length>0?f.slice(0,5):['ธุรกิจมีโครงสร้างพื้นฐานที่ดี ควรเพิ่ม Automation เพื่อ Scale ต่อ'];
+}
+
+function getActionPlan(ans, modules) {
+  const week1 = [
+    'รวมข้อมูลลูกค้า / Partner / ยอดขายจากทุกแหล่งเข้า Customer Data',
+    'ระบุ Partner หรือลูกค้าที่ควรดูด่วนจากข้อมูลที่มี',
+    'สร้าง Profile ลูกค้าเบื้องต้น และจัดกลุ่มตามช่องทางขาย'
+  ];
+  const week2 = [
+    'ใช้ Customer Status วิเคราะห์ว่าแต่ละรายอยู่ระดับ Healthy / Watch / Sleep',
+    'ให้ AI Recommendations สร้าง Action แนะนำสำหรับแต่ละกลุ่ม',
+    'Manager ตรวจสอบและ Approve Action ที่จะดำเนินการ'
+  ];
+  const week34 = [
+    'ใช้ Action Board ติดตามงานที่ Assign ให้ทีมขาย',
+    'เก็บ Feedback หลังทำงานจริงกลับมาอัปเดต Customer Status',
+    'Review Executive Dashboard ทุกสัปดาห์เพื่อติดตาม KPI'
+  ];
+  if(ans.q2.includes('B')||modules.includes('Campaigns')) week34.push('เปิด Campaigns กระตุ้นยอดสำหรับ Partner/ศูนย์ที่ยังต่ำกว่า Target');
+  if(modules.includes('Commission Calculator')) week34.push('ตั้ง Commission Calculator เพื่อกระตุ้น Frontline ให้ Push ยอด');
+  if(ans.q2.includes('G')||modules.includes('Competitors Report')) week2.push('รัน Competitors Report เพื่อทราบจุดแข็ง-อ่อนของคู่แข่ง');
+  if(modules.includes('Equipments Usage')) week1.push('Map รายการอุปกรณ์ที่วางไว้กับลูกค้าเข้าระบบ Equipments Usage');
+  if(modules.includes('Abnormal Detection')) week2.push('เปิด Abnormal Detection ตรวจจับความผิดปกติในข้อมูลยอดขาย');
+  return {week1, week2, week34};
+}
+
+// ============================================================
+// MODULE DETAILS
+// ============================================================
+const MODULE_DETAILS = {
+  'Executive Dashboard':{icon:'📊',why:'เห็นภาพรวม KPI ยอดขาย Partner และงานทีมในที่เดียว ตัดสินใจได้เร็วขึ้น',first:'เชื่อมข้อมูลยอดขายและ Partner เข้า Dashboard แล้วตั้ง KPI ที่ต้องติดตาม'},
+  'Customer Data':{icon:'👥',why:'รวมข้อมูลลูกค้าและ Partner จากทุกแหล่งเป็นแฟ้มกลาง ลดข้อมูลซ้ำและหาย',first:'Import ข้อมูลจาก Excel/CRM ที่มีอยู่ แล้ว Map กับ Partner ที่ดูแล'},
+  'Customer Status':{icon:'🎯',why:'AI วิเคราะห์สถานะลูกค้า/Partner แต่ละรายว่า Healthy, Watch, Sleep เพื่อจัดลำดับการดูแล',first:'กำหนด Criteria ของแต่ละ Status ให้ตรงกับธุรกิจ แล้วรัน Analysis ครั้งแรก'},
+  'AI Recommendations':{icon:'🤖',why:'AI แนะนำ Action ที่เหมาะสมสำหรับแต่ละลูกค้า/Partner ลดเวลาคิดของทีมขาย',first:'ตรวจสอบ Recommendation แรกที่ AI สร้าง และ Approve Action ที่ตรงกับ Priority'},
+  'Action Board':{icon:'✅',why:'Manager Assign งานและติดตาม Follow-up ของทีมขายแบบ Real-time',first:'สร้าง Action Board แรก กำหนด Owner และ Deadline ให้ชัดเจน'},
+  'Campaigns':{icon:'📢',why:'ออกแบบและส่ง Campaign กระตุ้นยอดขายไปยัง Partner/ศูนย์ที่เลือกได้แม่นยำ',first:'เลือก Partner/ศูนย์ที่ต้องการกระตุ้น สร้าง Campaign พร้อม Target และ Incentive'},
+  'Find New B2B Leads':{icon:'🔍',why:'ค้นหา Lead B2B ใหม่ตาม ICP ที่กำหนด ขยาย Pipeline โดยไม่ต้อง Manual Research',first:'กำหนด Ideal Customer Profile แล้วให้ระบบ Generate Lead List แรก'},
+  'Commission Calculator':{icon:'💰',why:'คำนวณค่าคอมมิสชั่น Real-time กระตุ้น Frontline และ Partner ให้ Push ยอดได้มากขึ้น',first:'ตั้งสูตรค่าคอมและ Tier ให้ถูกต้อง ทดสอบกับยอดขายจริงเดือนล่าสุด'},
+  'Competitors Report':{icon:'🔬',why:'AI รวบรวมสรุปข้อมูลคู่แข่งอัตโนมัติ ทีมขายรู้จุดแข็ง-อ่อนก่อนเข้าพบลูกค้า',first:'ระบุคู่แข่งหลัก 3-5 ราย ให้ AI Generate Comparison Report ครั้งแรก'},
+  'Frontline Performance':{icon:'📈',why:'วัดผลงาน SA/Frontline แต่ละคนเพื่อ Coaching และ Incentive ที่แม่นยำ',first:'นำเข้าข้อมูลทีม Frontline และตั้ง KPI ที่ต้องวัดผล'},
+  'Equipments Usage':{icon:'🔧',why:'ติดตามการใช้งานเครื่อง/อุปกรณ์ที่วางไว้ ลด Revenue Leakage จากของที่ไม่ได้ใช้',first:'Import รายการอุปกรณ์ทั้งหมด Match กับลูกค้าที่รับผิดชอบ'},
+  'Abnormal Detection':{icon:'⚠️',why:'AI ตรวจจับข้อมูลผิดปกติในยอดขาย/พฤติกรรมลูกค้า ก่อนเกิดปัญหาใหญ่',first:'กำหนด Threshold ของ "ปกติ" ในแต่ละ Metric แล้วให้ระบบ Monitor อัตโนมัติ'}
+};
+
+// ============================================================
+// REPORT HELPERS
+// ============================================================
+function getModuleReason(module, answers) {
+  const q2 = answers.q2 || [];
+  const q4 = answers.q4 || '';
+  const map = {
+    'Executive Dashboard': q2.includes('F') ? 'ข้อมูลที่กระจัดกระจายของคุณจะถูกรวมให้เห็นภาพรวมในที่เดียวทันที' : 'ผู้บริหารเห็น KPI และสัญญาณเสี่ยงได้ก่อนที่จะสายเกินไป',
+    'Customer Data': q2.includes('A') ? 'ลูกค้าที่กำลังหายไปจะถูก Track และแจ้งเตือนได้ทันที ไม่ตกหล่น' : 'รวบรวมข้อมูลลูกค้าและ Partner จากทุกแหล่งเป็นแฟ้มกลาง',
+    'Customer Status': q2.includes('A')||q2.includes('C') ? 'ระบบบอกอัตโนมัติว่าลูกค้ารายไหน Sleep แล้ว ต้องรีบก่อนเสียรายได้' : q2.includes('B') ? 'รู้ทันทีว่า Partner รายไหน Inactive — กระตุ้นได้ถูกคนถูกเวลา' : 'จัดลำดับลูกค้า/Partner ที่ควรดูแลก่อนได้แม่นยำ ไม่ต้องเดา',
+    'AI Recommendations': q2.includes('D')||q2.includes('E') ? 'ทีมขายรู้ทันทีว่าต้องทำอะไรก่อน ไม่ต้องรอหัวหน้าบอกทุกครั้ง' : 'AI วิเคราะห์และแนะนำ Action ที่เหมาะสมสำหรับลูกค้าแต่ละรายอัตโนมัติ',
+    'Action Board': q4==='D'||q4==='E' ? 'แก้ปัญหา Follow-up หลุดได้ตรงจุด — Manager เห็นทุกงาน ทีมเห็นทุก Task' : 'Assign งาน ติดตามสถานะ และรับ Feedback จากทีมในที่เดียว',
+    'Campaigns': q2.includes('B') ? 'กระตุ้น Partner/ศูนย์ที่ยังไม่ Push ยอดด้วย Campaign ที่ตรงกลุ่มเป้าหมาย' : 'ออกแบบ Campaign กระตุ้นยอดแม่นยำ วัดผลได้ชัดเจน',
+    'Find New B2B Leads': 'ขยาย Pipeline ด้วย B2B Lead ใหม่ โดยไม่ต้องเสียเวลา Research เอง',
+    'Commission Calculator': 'กระตุ้น Frontline และ Partner ด้วยค่าคอมที่โปร่งใส คำนวณ Real-time',
+    'Competitors Report': q2.includes('G') ? 'รู้จุดอ่อนของคู่แข่งก่อนเสียลูกค้าเพิ่ม ทีมขายพร้อมก่อนเข้าพบ' : 'ทีมขายมีข้อมูลคู่แข่งพร้อมก่อนเข้าพบลูกค้าทุกครั้ง',
+    'Frontline Performance': 'วัดผลงาน SA/Frontline แต่ละคน สร้าง Incentive ที่ถูกจุด ลด Turnover',
+    'Equipments Usage': 'ติดตามอุปกรณ์ที่วางไว้กับลูกค้า ลด Revenue Leakage จากของที่ไม่ได้ใช้',
+    'Abnormal Detection': 'ตรวจจับความผิดปกติในข้อมูลยอดขาย ก่อนกลายเป็นปัญหาใหญ่'
+  };
+  return map[module] || 'Module ที่ตรงกับความต้องการของธุรกิจคุณ';
+}
+
+function buildModulesSection(modules, answers) {
+  if (!modules.length) return '';
+  const TAGS = {
+    'Executive Dashboard':'เห็นภาพรวมก่อนตัดสินใจ',
+    'Customer Data':'ข้อมูลลูกค้าครบในที่เดียว',
+    'Customer Status':'รู้สถานะลูกค้าทุกราย',
+    'AI Recommendations':'AI บอกว่าต้องทำอะไรต่อ',
+    'Action Board':'Assign งาน ไม่มีหลุด',
+    'Campaigns':'กระตุ้นยอดขายแม่นยำ',
+    'Find New B2B Leads':'ขยาย Pipeline อัตโนมัติ',
+    'Commission Calculator':'คำนวณค่าคอม กระตุ้น Frontline',
+    'Competitors Report':'ติดตามคู่แข่ง รู้ก่อน',
+    'Frontline Performance':'วัดผล SA/Frontline',
+    'Equipments Usage':'ติดตามอุปกรณ์ที่วางไว้',
+    'Abnormal Detection':'ตรวจจับความผิดปกติ'
+  };
+  const mIcons = {
+    'Executive Dashboard':'📊','Customer Data':'👥','Customer Status':'🎯',
+    'AI Recommendations':'🤖','Action Board':'✅','Campaigns':'📢',
+    'Find New B2B Leads':'🔍','Commission Calculator':'💰','Competitors Report':'🔬',
+    'Frontline Performance':'📈','Equipments Usage':'🔧','Abnormal Detection':'⚠️'
+  };
+
+  const [featured, ...rest] = modules;
+
+  const featuredHTML = `
+    <div style="background:linear-gradient(135deg,rgba(34,197,94,0.07),rgba(56,189,248,0.04));border:1px solid rgba(34,197,94,0.25);border-radius:14px;padding:18px;margin-bottom:10px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,#22C55E,#38BDF8);border-radius:4px 0 0 4px;"></div>
+      <div style="padding-left:8px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:42px;height:42px;border-radius:10px;background:rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${mIcons[featured]||'◆'}</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
+              <span style="font-size:15px;font-weight:800;">${featured}</span>
+              <span style="font-size:9px;font-weight:700;color:var(--green);background:var(--green-dim);border:1px solid rgba(34,197,94,0.3);border-radius:4px;padding:2px 6px;letter-spacing:0.5px;">★ START HERE</span>
+            </div>
+            <div style="font-size:11px;color:var(--text3);">${TAGS[featured]||''}</div>
+          </div>
+        </div>
+        <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:11px 13px;margin-bottom:12px;">
+          <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;">สำหรับธุรกิจของคุณ</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.65;">${getModuleReason(featured, answers)}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);">แนะนำเริ่มต้นที่ Module นี้ก่อน</div>
+      </div>
+    </div>`;
+
+  const restHTML = rest.slice(0, 4).map(m => `
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:12px 10px;display:flex;align-items:flex-start;gap:9px;">
+      <div style="width:32px;height:32px;min-width:32px;border-radius:8px;background:var(--blue-dim);display:flex;align-items:center;justify-content:center;font-size:16px;">${mIcons[m]||'◆'}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:700;margin-bottom:2px;">${m}</div>
+        <div style="font-size:10px;color:var(--text3);line-height:1.4;">${TAGS[m]||''}</div>
+      </div>
+      <span style="color:var(--text3);font-size:14px;padding-top:5px;">›</span>
+    </div>`).join('');
+
+  return `
+    <div id="report-section-modules" style="margin:0 16px 12px;">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:14px;font-weight:800;letter-spacing:-0.3px;margin-bottom:2px;">Your Salesyncs Starting Kit</div>
+          <div style="font-size:11px;color:var(--text3);">เครื่องมือที่ตรงกับปัญหาธุรกิจของคุณ</div>
+        </div>
+        <div style="font-size:10px;color:var(--blue);border:1px solid rgba(56,189,248,0.3);border-radius:20px;padding:3px 10px;font-weight:600;white-space:nowrap;">${modules.length} Modules</div>
+      </div>
+      ${featuredHTML}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${restHTML}</div>
+    </div>`;
+}
+
+function getBusinessType(q1) {
+  if (!q1 || !q1.length) return 'Multi-channel';
+  const map = {A:'Direct Sales',B:'Partner Network',C:'Branch / Franchise',D:'Account-based Sales',E:'Equipment Placement',F:'Multi-channel'};
+  if (q1.length === 1) return map[q1[0]] || 'Multi-channel';
+  if (q1.includes('B') || q1.includes('C')) return 'Partner / Channel';
+  return 'Multi-channel';
+}
+
+function getRecommendedActions(ans, profiles) {
+  const a = [];
+  if (ans.q2.includes('B') || ans.q2.includes('A')) a.push('แบ่งกลุ่ม Partner/ลูกค้า ตามสถานะ Active / Watch / Dormant');
+  if (['C','D','E'].includes(ans.q4)) a.push('สร้าง Priority Follow-up List จาก Customer Status');
+  if (ans.q2.includes('C') || ans.q2.includes('A')) a.push('ติดตาม Repeat Purchase และสัญญาณ Inactivity');
+  if (ans.q2.includes('F') || ans.q3.includes('D') || ans.q3.includes('E')) a.push('รวมข้อมูลจากทุกทีมเข้า Central Dashboard');
+  if (ans.q2.includes('H')) a.push('เริ่ม AI Use Case แรกด้วย Customer Status Module');
+  if (ans.q2.includes('G')) a.push('รัน Competitor Analysis เพื่อระบุจุดเสี่ยง');
+  a.push('เริ่ม Pilot Discovery กับทีม Salesyncs ภายใน 7 วัน');
+  return a.slice(0, 4);
+}
+
+function createHealthRingSVG(score, health) {
+  const r = 44, cx = 60, cy = 60;
+  const circ = 2 * Math.PI * r;
+  const filled = circ * Math.min(score, 100) / 100;
+  const c1 = health==='Healthy'?'#22C55E':health==='Watch'?'#F59E0B':'#EF4444';
+  const c2 = health==='Healthy'?'#38BDF8':health==='Watch'?'#F97316':'#DC2626';
+  return `<svg viewBox="0 0 120 120" style="width:110px;height:110px;flex-shrink:0;">
+    <defs>
+      <linearGradient id="ringG" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="${c2}"/><stop offset="100%" stop-color="${c1}"/>
+      </linearGradient>
+    </defs>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" stroke-width="10"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="url(#ringG)" stroke-width="10"
+      stroke-dasharray="${filled.toFixed(1)} ${(circ-filled).toFixed(1)}"
+      stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>
+    <text x="${cx}" y="${cx-3}" text-anchor="middle" font-size="8.5" fill="#64748B" font-family="Inter,sans-serif" letter-spacing="1">HEALTH</text>
+    <text x="${cx}" y="${cx+11}" text-anchor="middle" font-size="11" fill="${c1}" font-family="Inter,sans-serif" font-weight="700">${health}</text>
+  </svg>`;
+}
+
+function createRadarSVG(scores) {
+  const cx=160, cy=155, R=80;
+  const dims=[
+    {l1:'Revenue',l2:'Opportunity',val:scores.revenue,angle:-90},
+    {l1:'Customer',l2:'Retention',val:scores.retention,angle:-30},
+    {l1:'Partner',l2:'Activation',val:scores.partner,angle:30},
+    {l1:'Data',l2:'Readiness',val:scores.data,angle:90},
+    {l1:'Sales',l2:'Execution',val:scores.sales,angle:150},
+    {l1:'AI',l2:'Readiness',val:scores.ai,angle:210}
+  ];
+  const rad=d=>d*Math.PI/180;
+  const pt=(a,r)=>({x:cx+r*Math.cos(rad(a)),y:cy+r*Math.sin(rad(a))});
+  let grid='';
+  [25,50,75,100].forEach(lv=>{
+    const pts=dims.map(d=>{const p=pt(d.angle,R*lv/100);return`${p.x.toFixed(1)},${p.y.toFixed(1)}`;}).join(' ');
+    grid+=`<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>`;
+  });
+  let axes='';
+  dims.forEach(d=>{const p=pt(d.angle,R);axes+=`<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>`;});
+  const dataPts=dims.map(d=>{const p=pt(d.angle,R*d.val/100);return`${p.x.toFixed(1)},${p.y.toFixed(1)}`;}).join(' ');
+  let dots='';
+  dims.forEach(d=>{const p=pt(d.angle,R*d.val/100);dots+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="#38BDF8" stroke="#050B14" stroke-width="1.5"/>`;});
+  const LR=R+42;
+  let labels='';
+  dims.forEach(d=>{
+    const p=pt(d.angle,LR);
+    const sc=d.val>=80?'#22C55E':d.val>=60?'#38BDF8':d.val>=40?'#F59E0B':'#EF4444';
+    labels+=`<text x="${p.x.toFixed(1)}" y="${(p.y-5).toFixed(1)}" text-anchor="middle" fill="#64748B" font-size="9.5" font-family="Inter,sans-serif">${d.l1}</text>
+    <text x="${p.x.toFixed(1)}" y="${(p.y+7).toFixed(1)}" text-anchor="middle" fill="#64748B" font-size="9.5" font-family="Inter,sans-serif">${d.l2}</text>
+    <text x="${p.x.toFixed(1)}" y="${(p.y+20).toFixed(1)}" text-anchor="middle" fill="${sc}" font-size="12" font-weight="700" font-family="Inter,sans-serif">${d.val}</text>`;
+  });
+  let lvM='';
+  [25,50,75].forEach(lv=>{const p=pt(-90,R*lv/100);lvM+=`<text x="${(cx+3).toFixed(0)}" y="${p.y.toFixed(0)}" fill="rgba(255,255,255,0.15)" font-size="7" font-family="Inter,sans-serif">${lv}</text>`;});
+  return `<svg viewBox="0 0 320 315" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px;display:block;margin:0 auto;"><defs><linearGradient id="radarFill" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22C55E" stop-opacity="0.2"/><stop offset="100%" stop-color="#38BDF8" stop-opacity="0.15"/></linearGradient></defs>${grid}${axes}<polygon points="${dataPts}" fill="url(#radarFill)"/><polygon points="${dataPts}" fill="none" stroke="#38BDF8" stroke-width="1.5" opacity="0.9"/>${dots}${lvM}${labels}</svg>`;
+}
+
+// ============================================================
+// RENDER REPORT
+// ============================================================
+function renderReportPage(d) {
+  currentReportData = d;
+  const {lead,answers,scores,profiles,modules,followUp,findings} = d;
+  const hColor = scores.health==='Healthy'?'var(--green)':scores.health==='Watch'?'var(--yellow)':'var(--red)';
+  const now = new Date().toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+
+  const bizType = getBusinessType(answers.q1);
+  const mainChallenge = profiles.primary.name;
+  const scoreDesc = scores.health==='Healthy'?'ธุรกิจมีสุขภาพดี พร้อม Scale ด้วย AI':scores.health==='Watch'?'โอกาสเติบโตได้มากขึ้น มีจุดที่ต้องปรับ':'ต้องเร่งแก้ไขก่อนที่จะกระทบยอดขาย';
+  const recActions = getRecommendedActions(answers, profiles);
+  const ringHTML = createHealthRingSVG(scores.overall, scores.health);
+  const radarHTML = createRadarSVG(scores);
+  const mIcons = {'Executive Dashboard':'📊','Customer Data':'👥','Customer Status':'🎯','AI Recommendations':'🤖','Action Board':'✅','Campaigns':'📢','Find New B2B Leads':'🔍','Commission Calculator':'💰','Competitors Report':'🔬','Frontline Performance':'📈','Equipments Usage':'🔧','Abnormal Detection':'⚠️'};
+  const ctaIcon = followUp.primary.includes('Investor')?'💼':followUp.primary.includes('Technical')?'⚙️':followUp.primary.includes('Impact')?'🏛️':followUp.primary.includes('Expert')?'🎓':'📅';
+
+  const findingsHTML = findings.slice(0,3).map(f=>`
+    <div style="display:flex;gap:7px;align-items:flex-start;margin-bottom:9px;">
+      <span style="color:var(--green);font-size:13px;line-height:1.5;flex-shrink:0;">✓</span>
+      <span style="font-size:11px;color:var(--text2);line-height:1.55;">${f}</span>
+    </div>`).join('');
+
+  const actionsHTML = recActions.map((a,i)=>`
+    <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:9px;">
+      <div style="min-width:18px;height:18px;border-radius:50%;background:var(--blue-dim);color:var(--blue);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+      <span style="font-size:11px;color:var(--text2);line-height:1.55;">${a}</span>
+    </div>`).join('');
+
+
+  document.getElementById('report-output').innerHTML = `
+    <div style="background:var(--bg);padding:0 0 20px;">
+
+      <!-- TOP BAR -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 16px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#38BDF8,#22C55E);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#fff;">S</div>
+          <span style="font-size:15px;font-weight:800;letter-spacing:-0.3px;">Salesyncs</span>
+        </div>
+        <div style="font-size:11px;border:1px solid var(--border);border-radius:20px;padding:4px 12px;color:var(--text2);">Diagnostic Report</div>
+      </div>
+
+      <!-- TITLE -->
+      <div style="padding:0 16px 16px;">
+        <div style="font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:4px;">${lead.name||'Business'}</div>
+        <div style="font-size:12px;color:var(--blue);font-weight:500;margin-bottom:2px;">AI Action Loop for B2B2C Partner Growth</div>
+        <div style="font-size:11px;color:var(--text3);">Business Growth Diagnostic Report · ${now}</div>
+      </div>
+
+      <!-- INFO ROW -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;margin:0 16px 12px;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+        <div style="padding:13px 10px;border-right:1px solid var(--border2);">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Company</div>
+          <div style="font-size:12px;font-weight:700;line-height:1.3;">${lead.company||'-'}</div>
+        </div>
+        <div style="padding:13px 10px;border-right:1px solid var(--border2);">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Business Type</div>
+          <div style="font-size:12px;font-weight:700;line-height:1.3;">${bizType}</div>
+        </div>
+        <div style="padding:13px 10px;">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Main Challenge</div>
+          <div style="font-size:11px;font-weight:700;line-height:1.3;">${mainChallenge}</div>
+        </div>
+      </div>
+
+      <!-- HEALTH SCORE -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;margin:0 16px 12px;padding:18px;">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:12px;">Overall Health Score</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="flex:1;">
+            <div style="line-height:1;">
+              <span style="font-size:54px;font-weight:900;letter-spacing:-2px;color:${hColor};">${scores.overall}</span>
+              <span style="font-size:18px;color:var(--text3);font-weight:400;">/100</span>
+            </div>
+            <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden;margin:10px 0 8px;">
+              <div style="height:100%;width:${scores.overall}%;border-radius:5px;background:linear-gradient(90deg,#38BDF8,#22C55E);"></div>
+            </div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.5;">${scoreDesc}</div>
+          </div>
+          ${ringHTML}
+        </div>
+      </div>
+
+      <!-- RADAR CHART -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;margin:0 16px 12px;padding:18px;">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;">Growth Dimension Radar</div>
+        ${radarHTML}
+      </div>
+
+      <!-- KEY FINDINGS + ACTIONS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px 12px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+            <span style="font-size:14px;">🔎</span>
+            <span style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.3px;">Key Findings</span>
+          </div>
+          ${findingsHTML}
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+            <span style="font-size:14px;">🎯</span>
+            <span style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.3px;">Recommended Actions</span>
+          </div>
+          ${actionsHTML}
+        </div>
+      </div>
+
+      <!-- MODULES -->
+      ${buildModulesSection(modules, answers)}
+
+      <!-- CTA -->
+      <a href="https://salesyncs.com/" target="_blank" style="text-decoration:none;display:block;margin:0 16px 12px;">
+      <div style="background:linear-gradient(135deg,#0B1829,#0D1E35);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;">
+        <div style="width:44px;height:44px;min-width:44px;border-radius:12px;background:var(--blue-dim);display:flex;align-items:center;justify-content:center;font-size:22px;">${ctaIcon}</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:#fff;">เริ่มต้นกับ Salesyncs</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px;">ทีมพร้อมนัดคุยต่อและแนะนำ Module ที่เหมาะกับธุรกิจคุณ</div>
+        </div>
+        <div style="width:36px;height:36px;min-width:36px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;">→</div>
+      </div>
+      </a>
+
+      <!-- FOOTER -->
+      <div style="text-align:center;padding:16px;font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;">
+        Data • AI • Action • Growth
+      </div>
+
+      <!-- BUTTONS -->
+      <div style="display:flex;flex-direction:column;gap:10px;padding:0 16px 40px;">
+        <button class="btn btn-primary btn-full" onclick="downloadPDF()" style="font-size:15px;padding:15px;">⬇ Download PDF</button>
+        <button class="btn btn-ghost btn-full" onclick="startNewCheck()">↺ Start New Check</button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// REPORT ACTIONS
+// ============================================================
+// Convert SVG string → PNG data URL (fixes html2canvas SVG issue)
+function svgToPNG(svgString, w, h) {
+  return new Promise((resolve) => {
+    try {
+      const blob = new Blob([svgString], {type:'image/svg+xml;charset=utf-8'});
+      const url  = URL.createObjectURL(blob);
+      const img  = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = w * 2; c.height = h * 2;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#0F172A';
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/png'));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(''); };
+      img.src = url;
+    } catch(e) { resolve(''); }
+  });
+}
+
+function buildPDFPage1HTML(d, radarImgSrc) {
+  const {lead, answers, scores, profiles, findings, followUp} = d;
+  const recActions = getRecommendedActions(answers, profiles);
+  const bizType    = getBusinessType(answers.q1);
+  const now        = new Date().toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+  const hColor     = scores.health==='Healthy'?'#22C55E':scores.health==='Watch'?'#F59E0B':'#EF4444';
+  const scoreDesc  = scores.health==='Healthy'?'ธุรกิจมีสุขภาพดี พร้อม Scale ด้วย AI':scores.health==='Watch'?'โอกาสเติบโตได้มากขึ้น มีจุดที่ต้องปรับ':'ต้องเร่งแก้ไขก่อนที่จะกระทบยอดขาย';
+  const DIMS = [
+    {l:'Revenue',v:scores.revenue},{l:'Retention',v:scores.retention},{l:'Partner',v:scores.partner},
+    {l:'Data',v:scores.data},{l:'Sales',v:scores.sales},{l:'AI',v:scores.ai}
+  ];
+  const dimPills = DIMS.map(d=>{
+    const c = d.v>=80?'#22C55E':d.v>=60?'#38BDF8':'#F59E0B';
+    return `<div style="text-align:center;padding:6px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;">
+      <div style="font-size:10px;color:#64748B;margin-bottom:2px;">${d.l}</div>
+      <div style="font-size:15px;font-weight:800;color:${c};">${d.v}</div>
+    </div>`;
+  }).join('');
+
+  const findRows = findings.slice(0,4).map(f=>`
+    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;">
+      <span style="color:#22C55E;font-size:13px;line-height:1.4;flex-shrink:0;">✓</span>
+      <span style="font-size:11.5px;color:#94A3B8;line-height:1.55;">${f}</span>
+    </div>`).join('');
+
+  const actionRows = recActions.slice(0,4).map((a,i)=>`
+    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;">
+      <div style="min-width:19px;height:19px;border-radius:50%;background:rgba(56,189,248,0.15);color:#38BDF8;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">${i+1}</div>
+      <span style="font-size:11.5px;color:#94A3B8;line-height:1.55;">${a}</span>
+    </div>`).join('');
+
+  const radarImg = radarImgSrc
+    ? `<img src="${radarImgSrc}" style="width:340px;height:340px;display:block;margin:0 auto;" />`
+    : `<div style="color:#64748B;text-align:center;padding:40px;">Chart unavailable</div>`;
+
+  return `
+  <div style="width:794px;min-height:1123px;background:#050B14;color:#F8FAFC;padding:42px;box-sizing:border-box;font-family:Inter,sans-serif;position:relative;overflow:hidden;">
+
+    <!-- HEADER -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.08);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#38BDF8,#22C55E);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#fff;">S</div>
+        <div>
+          <div style="font-size:17px;font-weight:800;letter-spacing:-0.3px;">Salesyncs</div>
+          <div style="font-size:10px;color:#64748B;letter-spacing:0.5px;text-transform:uppercase;">Business Health Report</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;color:#64748B;margin-bottom:4px;">${now}</div>
+        <div style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:${scores.health==='Healthy'?'rgba(34,197,94,0.15)':scores.health==='Watch'?'rgba(245,158,11,0.15)':'rgba(239,68,68,0.15)'};color:${hColor};">${scores.health}</div>
+      </div>
+    </div>
+
+    <!-- COMPANY TITLE -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:26px;font-weight:900;letter-spacing:-0.5px;line-height:1.15;margin-bottom:3px;">${lead.company||lead.name||'Business'}</div>
+      <div style="font-size:12px;color:#38BDF8;">${lead.name||''} · ${lead.position||''}</div>
+    </div>
+
+    <!-- INFO ROW -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;background:#0F172A;border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;margin-bottom:18px;">
+      <div style="padding:12px 16px;border-right:1px solid rgba(255,255,255,0.06);">
+        <div style="font-size:9px;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Company</div>
+        <div style="font-size:13px;font-weight:700;">${lead.company||'-'}</div>
+      </div>
+      <div style="padding:12px 16px;border-right:1px solid rgba(255,255,255,0.06);">
+        <div style="font-size:9px;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Business Type</div>
+        <div style="font-size:13px;font-weight:700;">${bizType}</div>
+      </div>
+      <div style="padding:12px 16px;">
+        <div style="font-size:9px;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Main Challenge</div>
+        <div style="font-size:12px;font-weight:700;">${profiles.primary?profiles.primary.name:'-'}</div>
+      </div>
+    </div>
+
+    <!-- HEALTH SCORE -->
+    <div style="background:#0F172A;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px 20px;margin-bottom:18px;">
+      <div style="font-size:10px;font-weight:700;color:#38BDF8;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:12px;">Overall Health Score</div>
+      <div style="display:flex;align-items:center;gap:24px;">
+        <div style="flex:1;">
+          <div style="margin-bottom:8px;">
+            <span style="font-size:60px;font-weight:900;letter-spacing:-2px;color:${hColor};line-height:1;">${scores.overall}</span>
+            <span style="font-size:20px;color:#475569;font-weight:400;"> / 100</span>
+          </div>
+          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;margin-bottom:8px;">
+            <div style="height:100%;width:${scores.overall}%;border-radius:6px;background:linear-gradient(90deg,#38BDF8,#22C55E);"></div>
+          </div>
+          <div style="font-size:12px;color:#94A3B8;">${scoreDesc}</div>
+        </div>
+        <div style="text-align:center;flex-shrink:0;">
+          <div style="width:72px;height:72px;border-radius:50%;border:5px solid ${hColor};display:flex;align-items:center;justify-content:center;flex-direction:column;">
+            <div style="font-size:10px;font-weight:800;color:${hColor};">${scores.health}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RADAR + DIMS -->
+    <div style="background:#0F172A;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px 20px;margin-bottom:18px;">
+      <div style="font-size:10px;font-weight:700;color:#38BDF8;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:12px;">Growth Dimension Radar</div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="flex-shrink:0;">${radarImg}</div>
+        <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;">${dimPills}</div>
+      </div>
+    </div>
+
+    <!-- FINDINGS + ACTIONS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div style="background:#0F172A;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px 18px;">
+        <div style="font-size:10px;font-weight:700;color:#38BDF8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">🔎 Key Findings</div>
+        ${findRows}
+      </div>
+      <div style="background:#0F172A;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px 18px;">
+        <div style="font-size:10px;font-weight:700;color:#22C55E;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">🎯 Recommended Actions</div>
+        ${actionRows}
+      </div>
+    </div>
+
+    <!-- PAGE NUM -->
+    <div style="position:absolute;bottom:24px;right:42px;font-size:10px;color:#334155;">1 / 2</div>
+  </div>`;
+}
+
+function buildPDFPage2HTML(d) {
+  const {lead, answers, modules, followUp, actionPlan} = d;
+  const mIcons = {'Executive Dashboard':'📊','Customer Data':'👥','Customer Status':'🎯','AI Recommendations':'🤖','Action Board':'✅','Campaigns':'📢','Find New B2B Leads':'🔍','Commission Calculator':'💰','Competitors Report':'🔬','Frontline Performance':'📈','Equipments Usage':'🔧','Abnormal Detection':'⚠️'};
+  const TAGS = {'Executive Dashboard':'ดู KPI และยอดขายแบบ Real-time','Customer Data':'รวมข้อมูลลูกค้าในที่เดียว','Customer Status':'AI จัดกลุ่มลูกค้า Active/Watch/Sleep','AI Recommendations':'คำแนะนำ Action จาก AI อัตโนมัติ','Action Board':'Assign และติดตามงานทีมขาย','Campaigns':'กระตุ้นยอดขาย Partner และศูนย์','Find New B2B Leads':'หา Lead B2B ใหม่ตาม ICP','Commission Calculator':'คำนวณค่าคอม Real-time','Competitors Report':'วิเคราะห์คู่แข่งอัตโนมัติ','Frontline Performance':'วัดผล SA/Frontline รายคน','Equipments Usage':'ติดตามอุปกรณ์ที่วางกับลูกค้า','Abnormal Detection':'ตรวจจับความผิดปกติในยอดขาย'};
+
+  const featured = modules[0]||'';
+  const rest = modules.slice(1,5);
+
+  const featuredCard = featured ? `
+    <div style="background:rgba(34,197,94,0.06);border:2px solid rgba(34,197,94,0.4);border-radius:12px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:flex-start;gap:14px;">
+      <div style="font-size:28px;flex-shrink:0;">${mIcons[featured]||'◆'}</div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <div style="font-size:14px;font-weight:800;">${featured}</div>
+          <div style="font-size:9px;font-weight:700;color:#22C55E;background:rgba(34,197,94,0.15);border-radius:20px;padding:2px 8px;">★ START HERE</div>
+        </div>
+        <div style="font-size:11px;color:#94A3B8;line-height:1.55;">${TAGS[featured]||''}</div>
+        <div style="margin-top:8px;padding:8px 12px;background:rgba(0,0,0,0.2);border-radius:8px;font-size:11px;color:#94A3B8;">
+          <span style="color:#64748B;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:3px;">สำหรับธุรกิจของคุณ</span>
+          ${getModuleReason(featured, answers)}
+        </div>
+      </div>
+    </div>` : '';
+
+  const restCards = rest.map(m=>`
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px;">${mIcons[m]||'◆'}</span>
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:700;margin-bottom:2px;">${m}</div>
+        <div style="font-size:10px;color:#64748B;">${TAGS[m]||''}</div>
+      </div>
+    </div>`).join('');
+
+  const wk = (items, label, color) => items.slice(0,3).map(t=>`
+    <div style="display:flex;gap:7px;margin-bottom:7px;align-items:flex-start;">
+      <span style="color:${color};font-size:11px;line-height:1.5;flex-shrink:0;">•</span>
+      <span style="font-size:11px;color:#94A3B8;line-height:1.5;">${t}</span>
+    </div>`).join('');
+
+  const secList = followUp.secondary && followUp.secondary.length
+    ? followUp.secondary.map(s=>`<div style="font-size:12px;color:#94A3B8;margin-bottom:4px;">• ${s}</div>`).join('')
+    : '';
+
+  return `
+  <div style="width:794px;min-height:1123px;background:#050B14;color:#F8FAFC;padding:42px;box-sizing:border-box;font-family:Inter,sans-serif;position:relative;overflow:hidden;">
+
+    <!-- HEADER -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.08);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#38BDF8,#22C55E);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#fff;">S</div>
+        <span style="font-size:14px;font-weight:800;">Salesyncs</span>
+      </div>
+      <div style="font-size:10px;color:#64748B;">${lead.company||''} · Personalized Module Roadmap</div>
+    </div>
+
+    <!-- MODULES -->
+    <div style="margin-bottom:22px;">
+      <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Your Salesyncs Starting Kit</div>
+      <div style="font-size:13px;color:#94A3B8;margin-bottom:14px;">เครื่องมือที่ตรงกับปัญหาธุรกิจของคุณ — ${modules.length} Modules</div>
+      ${featuredCard}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${restCards}</div>
+    </div>
+
+    <!-- ACTION PLAN -->
+    <div style="background:#0F172A;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px 20px;margin-bottom:18px;">
+      <div style="font-size:10px;font-weight:700;color:#38BDF8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;">📅 30-Day Action Plan</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#F8FAFC;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(56,189,248,0.3);">Week 1<br><span style="color:#64748B;font-weight:400;">Data & Diagnosis</span></div>
+          ${wk(actionPlan.week1,'Week 1','#38BDF8')}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#F8FAFC;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(139,92,246,0.3);">Week 2<br><span style="color:#64748B;font-weight:400;">AI & Prioritization</span></div>
+          ${wk(actionPlan.week2,'Week 2','#8B5CF6')}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#F8FAFC;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(34,197,94,0.3);">Week 3–4<br><span style="color:#64748B;font-weight:400;">Execution & Feedback</span></div>
+          ${wk(actionPlan.week34,'Week 3-4','#22C55E')}
+        </div>
+      </div>
+    </div>
+
+    <!-- FOLLOW-UP -->
+    <div style="background:linear-gradient(135deg,#0B1829,#0D1E35);border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:18px 20px;margin-bottom:22px;">
+      <div style="font-size:10px;font-weight:700;color:#38BDF8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">📞 Suggested Follow-up Direction</div>
+      <div style="display:flex;gap:14px;align-items:flex-start;">
+        <div style="flex:1;">
+          <div style="font-size:10px;color:#64748B;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.3px;">Primary</div>
+          <div style="font-size:14px;font-weight:700;color:#F8FAFC;">Schedule a ${followUp.primary}</div>
+          <div style="font-size:11px;color:#64748B;margin-top:2px;">ทีม Salesyncs พร้อมนัดคุยต่อ</div>
+        </div>
+        ${secList ? `<div style="flex:1;padding-left:14px;border-left:1px solid rgba(255,255,255,0.08);">
+          <div style="font-size:10px;color:#64748B;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Also Recommended</div>
+          ${secList}
+        </div>` : ''}
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="position:absolute;bottom:30px;left:42px;right:42px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:10px;color:#334155;letter-spacing:2px;text-transform:uppercase;">Data • AI • Action • Growth</div>
+      <div style="font-size:10px;color:#334155;">salesyncs.com</div>
+      <div style="font-size:10px;color:#334155;">2 / 2</div>
+    </div>
+
+  </div>`;
+}
+
+async function downloadPDF() {
+  if(!currentReportData) { alert('ยังไม่มีข้อมูล Report'); return; }
+  const btn = document.querySelector('button[onclick="downloadPDF()"]');
+  if(btn) { btn.disabled = true; btn.textContent = '⏳ กำลังสร้าง PDF...'; }
+
+  try {
+    // 1. Convert radar SVG → PNG (fixes html2canvas SVG rendering)
+    const radarSVGStr = createRadarSVG(currentReportData.scores);
+    const radarPNG = await svgToPNG(radarSVGStr, 340, 340);
+
+    // 2. Build PDF layout container (hidden, off-screen)
+    const root = document.createElement('div');
+    root.id = 'pdf-export-root';
+    root.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;';
+    root.innerHTML =
+      `<div id="pdf-p1">${buildPDFPage1HTML(currentReportData, radarPNG)}</div>` +
+      `<div id="pdf-p2">${buildPDFPage2HTML(currentReportData)}</div>`;
+    document.body.appendChild(root);
+    await new Promise(r => setTimeout(r, 300));
+
+    // 3. Capture each page
+    const opts = { scale:2, useCORS:true, backgroundColor:'#050B14', logging:false, width:794, windowWidth:794 };
+    const [c1, c2] = await Promise.all([
+      html2canvas(document.getElementById('pdf-p1').firstElementChild, opts),
+      html2canvas(document.getElementById('pdf-p2').firstElementChild, opts)
+    ]);
+
+    // 4. Build PDF
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    pdf.addImage(c1.toDataURL('image/jpeg',0.97), 'JPEG', 0, 0, 210, 297);
+    pdf.addPage();
+    pdf.addImage(c2.toDataURL('image/jpeg',0.97), 'JPEG', 0, 0, 210, 297);
+
+    const company = (currentReportData.lead.company||'Report').replace(/\s+/g,'-');
+    pdf.save(`Salesyncs-Business-Health-Report-${company}.pdf`);
+  } catch(e) {
+    console.error(e);
+    alert('ไม่สามารถสร้าง PDF ได้: ' + e.message);
+  } finally {
+    const root = document.getElementById('pdf-export-root');
+    if(root) root.remove();
+    if(btn) { btn.disabled = false; btn.textContent = '⬇ Download PDF'; }
+  }
+}
+
+function printReport() {
+  window.print();
+}
+
+function copyReport() {
+  const el = document.getElementById('report-output');
+  const txt = el ? el.innerText : '';
+  navigator.clipboard.writeText(txt).then(()=>showToast('✓ Copied to clipboard')).catch(()=>showToast('Copy ไม่สำเร็จ — ลอง Select All แล้ว Copy เอง'));
+}
+
+function startNewCheck() {
+  currentLead = {};
+  currentAnswers = {q1:[],q2:[],q3:[],q4:'',q5:[]};
+  selectedInterests = [];
+  consentGiven = false;
+  document.getElementById('lead-form').reset();
+  document.querySelectorAll('.option-card.selected,.option-card.radio-selected').forEach(c=>{
+    c.classList.remove('selected','radio-selected');
+    c.querySelector('.option-indicator').innerHTML='';
+  });
+  showPage('page-welcome');
+}
+
+// ============================================================
+// LOCALSTORAGE
+// ============================================================
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzG9AMYm2aU_3yDc20r5P8RpnDd8AlgLBgd8r5Ziy2ahXqfVOWOFKZHCqWViXpds1gZeA/exec';
+
+const Q1_TEXT = {A:'ขายตรงให้ลูกค้าปลายทาง',B:'ขายผ่าน Partner/Dealer/Distributor',C:'ขายผ่านสาขา/ศูนย์/Franchise',D:'ทีมขายดูแลลูกค้าซ้ำ',E:'มีสินค้า/อุปกรณ์วางไว้กับลูกค้า',F:'หลายช่องทาง/ไม่แน่ใจ'};
+const Q2_TEXT = {A:'ลูกค้าเก่าหาย/ไม่ซื้อซ้ำ',B:'Partner ไม่ช่วย Push ขาย',C:'ยอดซื้อซ้ำไม่สม่ำเสมอ',D:'ทีมขาย Follow-up ไม่ทัน',E:'ไม่รู้ว่าควรติดต่อใครก่อน',F:'ข้อมูลกระจัดกระจาย ไม่มี Dashboard',G:'คู่แข่งแย่งลูกค้า',H:'อยากใช้ AI แต่ไม่รู้จะเริ่มตรงไหน'};
+const Q3_TEXT = {A:'Excel/Google Sheet',B:'POS/ERP/CRM',C:'รายงานจากทีมขาย',D:'ข้อมูลกระจาย หลายทีม ยังไม่รวม',E:'มีข้อมูลแต่ยังไม่ได้วิเคราะห์',F:'ยังไม่มีข้อมูลที่เป็นระบบ'};
+const Q4_TEXT = {A:'รู้ชัด มีระบบติดตามอยู่แล้ว',B:'พอรู้ แต่ดูเองจาก Excel/Report',C:'รู้ตอนยอดตก หรือลูกค้าโทรมาเอง',D:'รอหัวหน้าหรือลูกค้าแจ้ง',E:'ยังไม่มีระบบ Follow-up'};
+const Q5_TEXT = {A:'Executive Dashboard',B:'Customer Data',C:'Customer Status',D:'AI Recommendations',E:'Action Board',F:'Campaigns',G:'Find New B2B Leads',H:'Commission Calculator',I:'Competitors Report',J:'Frontline Performance',K:'Equipments Usage',L:'Abnormal Detection'};
+const INT_TEXT = {A:'อยากดูว่า Salesyncs ช่วยเพิ่มยอดขาย/ดูแลลูกค้า/Partner',B:'สนใจทดลองใช้/Pilot',C:'สนใจการลงทุน/Funding',D:'สนใจร่วมพัฒนาเทคโนโลยี/AI',E:'สนใจมุมหน่วยงานรัฐ/SME',F:'สนใจให้คำแนะนำ/Mentorship',G:'แค่มาเยี่ยมชม'};
+
+function mapKeys(keys, map) { return (keys||[]).map(k=>map[k]||k).join(' | '); }
+
+function sendToSheets(entry) {
+  const d = entry;
+  const interests = d.interests || (d.role_interest ? [d.role_interest] : []);
+  const payload = {
+    lead_id:       d.lead_id,
+    created_at:    new Date(d.created_at).toLocaleString('th-TH'),
+    name:          d.contact.name,
+    company:       d.contact.company,
+    position:      d.contact.position,
+    phone:         d.contact.phone,
+    email:         d.contact.email,
+    lead_type:     ROLE_LABELS[d.role_interest] || d.role_interest || '-',
+    interests:     mapKeys(interests, INT_TEXT),
+    overall_score: d.scores.overall,
+    health_level:  d.health_level,
+    q1: mapKeys(d.answers.q1, Q1_TEXT),
+    q2: mapKeys(d.answers.q2, Q2_TEXT),
+    q3: mapKeys(d.answers.q3, Q3_TEXT),
+    q4: Q4_TEXT[d.answers.q4] || d.answers.q4 || '',
+    q5: mapKeys(d.answers.q5, Q5_TEXT),
+    modules:       (d.recommended_modules||[]).join(' | '),
+    follow_up:     d.follow_up_direction?.primary || ''
+  };
+  const params = new URLSearchParams();
+  params.append('data', JSON.stringify(payload));
+  fetch(SHEETS_URL + '?' + params.toString(), {
+    method: 'GET',
+    mode: 'no-cors'
+  }).catch(e => console.warn('Sheets sync failed:', e));
+}
+
+function saveLead(d) {
+  const leads = JSON.parse(localStorage.getItem('salesyncs_leads')||'[]');
+  const entry = {
+    lead_id: 'L'+Date.now(),
+    created_at: new Date().toISOString(),
+    contact: d.lead,
+    role_interest: d.lead.role,
+    interests: d.lead.interests || [],
+    answers: d.answers,
+    exec_summary: d.execSummary,
+    scores: d.scores,
+    health_level: d.scores.health,
+    recommended_modules: d.modules,
+    follow_up_direction: d.followUp,
+    profiles: d.profiles
+  };
+  leads.push(entry);
+  localStorage.setItem('salesyncs_leads', JSON.stringify(leads));
+  sendToSheets(entry);
+}
+
+function getLeads() {
+  return JSON.parse(localStorage.getItem('salesyncs_leads')||'[]');
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+let adminLoggedIn = false;
+
+function adminLogin() {
+  const u = document.getElementById('admin-user').value;
+  const p = document.getElementById('admin-pass').value;
+  if(u==='admin' && p==='123') {
+    adminLoggedIn = true;
+    document.getElementById('admin-error').style.display='none';
+    showPage('page-admin');
+    refreshAdmin();
+  } else {
+    document.getElementById('admin-error').style.display='block';
+  }
+}
+
+function adminLogout() {
+  adminLoggedIn = false;
+  document.getElementById('admin-user').value='';
+  document.getElementById('admin-pass').value='';
+  showPage('page-welcome');
+}
+
+function refreshAdmin() {
+  renderAdminStats();
+  renderLeadsTable();
+}
+
+function renderAdminStats() {
+  const leads = getLeads();
+  const today = new Date().toDateString();
+  const todayLeads = leads.filter(l=>new Date(l.created_at).toDateString()===today);
+  const avgScore = leads.length>0 ? Math.round(leads.reduce((s,l)=>s+l.scores.overall,0)/leads.length) : 0;
+  const healthy = leads.filter(l=>l.health_level==='Healthy').length;
+  const watch = leads.filter(l=>l.health_level==='Watch').length;
+  const sleep = leads.filter(l=>l.health_level==='Sleep').length;
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" style="color:var(--blue)">${leads.length}</div><div class="stat-sub">ทั้งหมด</div></div>
+    <div class="stat-card"><div class="stat-label">Leads Today</div><div class="stat-value" style="color:var(--green)">${todayLeads.length}</div><div class="stat-sub">วันนี้</div></div>
+  `;
+  document.getElementById('health-dist').innerHTML = '';
+  renderRoleChart(leads);
+  renderInsightCharts(leads);
+}
+
+function renderRoleChart(leads) {
+  const el = document.getElementById('role-chart');
+  if(!el) return;
+
+  const ROLE_COLORS = {A:'#22C55E',B:'#38BDF8',C:'#F59E0B',D:'#8B5CF6',E:'#EC4899',F:'#14B8A6',G:'#6B7280'};
+  const ROLE_SHORT  = {A:'Business Owner',B:'Pilot Candidate',C:'Investor',D:'Tech Partner',E:'Government',F:'Advisor',G:'Visitor'};
+  const keys = ['A','B','C','D','E','F','G'];
+  const counts = {A:0,B:0,C:0,D:0,E:0,F:0,G:0};
+  leads.forEach(l => { const k = l.role_interest; if(k && counts[k] !== undefined) counts[k]++; });
+  const total = leads.length;
+
+  if(total === 0) {
+    el.innerHTML = `
+      <div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px;">Lead Type Distribution</div>
+      <div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">ยังไม่มีข้อมูล Lead</div>`;
+    return;
+  }
+
+  const cx=60, cy=60, r=46, stroke=16;
+  const circ = 2*Math.PI*r;
+  let offset = 0, segments = '';
+  keys.forEach(k => {
+    const dash = (counts[k]/total)*circ;
+    if(dash > 0) {
+      segments += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${ROLE_COLORS[k]}" stroke-width="${stroke}" stroke-dasharray="${dash.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+      offset += dash;
+    }
+  });
+
+  const legendHTML = keys.filter(k=>counts[k]>0).map(k => {
+    const pct = Math.round(counts[k]/total*100);
+    return `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="width:10px;height:10px;min-width:10px;border-radius:3px;background:${ROLE_COLORS[k]};flex-shrink:0;"></div>
+        <div style="flex:1;font-size:12px;color:var(--text2);">${ROLE_SHORT[k]}</div>
+        <div style="width:70px;height:5px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${ROLE_COLORS[k]};border-radius:99px;"></div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:#fff;min-width:22px;text-align:right;">${counts[k]}</div>
+        <div style="font-size:11px;color:var(--text3);min-width:32px;text-align:right;">${pct}%</div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:14px;">Lead Type Distribution</div>
+    <div style="display:flex;align-items:center;gap:28px;">
+      <div style="flex-shrink:0;">
+        <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="${stroke}"/>
+          ${segments}
+          <text x="${cx}" y="${cy-5}" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="800" font-family="sans-serif">${total}</text>
+          <text x="${cx}" y="${cy+11}" text-anchor="middle" fill="#6B7280" font-size="9" font-family="sans-serif">LEADS</text>
+        </svg>
+      </div>
+      <div style="flex:1;min-width:0;">${legendHTML}</div>
+    </div>`;
+}
+
+function renderTopChart(elId, title, items) {
+  const el = document.getElementById(elId);
+  if(!el) return;
+  const max = items[0] ? items[0].count : 1;
+  const colors = ['#22C55E','#38BDF8','#8B5CF6','#F59E0B','#EC4899'];
+  const rows = items.length === 0
+    ? `<div style="text-align:center;padding:16px;color:var(--text3);font-size:13px;">ยังไม่มีข้อมูล</div>`
+    : items.map((item,i) => `
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:12px;color:var(--text2);flex:1;padding-right:8px;line-height:1.4;">${item.label}</span>
+          <span style="font-size:12px;font-weight:700;color:#fff;min-width:20px;text-align:right;">${item.count}</span>
+        </div>
+        <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;">
+          <div style="height:100%;width:${Math.round(item.count/max*100)}%;background:${colors[i]};border-radius:99px;transition:width .4s;"></div>
+        </div>
+      </div>`).join('');
+  el.innerHTML = `
+    <div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:14px;">${title}</div>
+    ${rows}`;
+}
+
+function renderInsightCharts(leads) {
+  // --- Top 5 Business Challenges (Q2) ---
+  const challengeLabels = {A:'ลูกค้าเก่าหาย',B:'Partner ไม่ Push ขาย',C:'ยอดซื้อซ้ำไม่สม่ำเสมอ',D:'ทีมขาย Follow-up ไม่ทัน',E:'ขาดระบบจัดลำดับ',F:'ข้อมูลกระจัดกระจาย',G:'คู่แข่งแย่งลูกค้า',H:'AI Readiness Gap'};
+  const cCount = {};
+  leads.forEach(l => (l.answers && l.answers.q2||[]).forEach(k => { cCount[k]=(cCount[k]||0)+1; }));
+  const topChallenges = Object.entries(cCount).sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([k,v])=>({label:challengeLabels[k]||k, count:v}));
+
+  // --- Top 5 Recommended Modules ---
+  const mCount = {};
+  leads.forEach(l => (l.recommended_modules||[]).forEach(m => { mCount[m]=(mCount[m]||0)+1; }));
+  const topModules = Object.entries(mCount).sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([k,v])=>({label:k, count:v}));
+
+  // --- Top 5 Business Problems / Q2 primary (profile names) ---
+  const PROFILE_MAP = {
+    A:'Churn Risk',B:'Partner Disengagement',C:'Revenue Inconsistency',
+    D:'Follow-up Overload',E:'No Prioritization',F:'Data Silo',
+    G:'Competitive Threat',H:'AI Unreadiness'
+  };
+  const pCount = {};
+  leads.forEach(l => (l.answers && l.answers.q2||[]).forEach(k => { const label=PROFILE_MAP[k]||k; pCount[label]=(pCount[label]||0)+1; }));
+  const topProblems = Object.entries(pCount).sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([k,v])=>({label:k, count:v}));
+
+  renderTopChart('chart-challenges', 'Top 5 Business Challenges', topChallenges);
+  renderTopChart('chart-modules',    'Top 5 Recommended Modules', topModules);
+  renderTopChart('chart-problems',   'Top 5 Business Problems',   topProblems);
+}
+
+const ROLE_LABELS = {A:'Business Owner / Customer',B:'Pilot Candidate',C:'Investor / Funding Partner',D:'Tech / Software / Data Partner',E:'Government / Innovation Agency',F:'Advisor / Mentor / Expert',G:'Visitor / Other'};
+
+function renderLeadsTable() {
+  let leads = getLeads();
+  const fromVal = (document.getElementById('filter-date-from')||{}).value||'';
+  const toVal   = (document.getElementById('filter-date-to')||{}).value||'';
+
+  if(fromVal) leads = leads.filter(l => new Date(l.created_at) >= new Date(fromVal));
+  if(toVal)   leads = leads.filter(l => new Date(l.created_at) <= new Date(toVal + 'T23:59:59'));
+
+  const tbody = document.getElementById('leads-tbody');
+  if(!leads.length){
+    tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="es-icon">📭</div><div class="es-text">ยังไม่มี Lead ในระบบ</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = leads.slice().reverse().map((l,i)=>{
+    const hc = l.health_level==='Healthy'?'badge-healthy':l.health_level==='Watch'?'badge-watch':'badge-sleep';
+    const dt = new Date(l.created_at).toLocaleDateString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td><div class="table-name">${l.contact.name||'-'}</div><div class="table-company">${l.contact.email||''}</div></td>
+      <td>${l.contact.company||'-'}</td>
+      <td><span style="font-size:12px;color:var(--text2)">${ROLE_LABELS[l.role_interest]||l.role_interest||'-'}</span></td>
+      <td style="font-size:12px;color:var(--text3)">${dt}</td>
+      <td><button class="table-btn" onclick="viewLeadDetail('${l.lead_id}')">ดูรายละเอียด</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function viewLeadDetail(id) {
+  const leads = getLeads();
+  const l = leads.find(x=>x.lead_id===id);
+  if(!l) return;
+
+  const qLabels = {
+    q1:{label:'Q1 ช่องทางขาย',opts:{A:'ขายตรง',B:'Partner/Dealer',C:'สาขา/Franchise',D:'ทีมขายดูแลซ้ำ',E:'อุปกรณ์วางที่ลูกค้า',F:'หลายช่องทาง'}},
+    q2:{label:'Q2 ปัญหาหลัก',opts:{A:'ลูกค้าเก่าหาย',B:'Partner ไม่ Push',C:'ยอดซื้อซ้ำไม่สม่ำเสมอ',D:'Follow-up ไม่ทัน',E:'ขาดระบบจัดลำดับ',F:'ข้อมูลกระจัดกระจาย',G:'คู่แข่งแย่งลูกค้า',H:'AI Readiness Gap'}},
+    q3:{label:'Q3 รูปแบบข้อมูล',opts:{A:'Excel/Google Sheet',B:'POS/ERP/CRM',C:'รายงานทีมขาย',D:'หลายทีม ยังไม่รวม',E:'มีแต่ไม่ได้วิเคราะห์',F:'ยังไม่มี'}},
+    q4:{label:'Q4 ระบบ Follow-up',opts:{A:'ชัดเจน',B:'พอรู้ ดู Excel เอง',C:'รู้ตอนยอดตก',D:'รอหัวหน้าบอก',E:'ยังไม่มีระบบ'}},
+    q5:{label:'Q5 อยากให้ช่วย',opts:{A:'Executive Dashboard',B:'Customer Data',C:'Customer Status',D:'AI Recommendations',E:'Action Board',F:'Campaigns',G:'Find New B2B Leads',H:'Commission Calculator',I:'Competitors Report',J:'Frontline Performance',K:'Equipments Usage',L:'Abnormal Detection'}}
+  };
+
+  const ansHTML = Object.keys(qLabels).map(qk=>{
+    const a = l.answers[qk];
+    const vals = Array.isArray(a)?a.map(v=>qLabels[qk].opts[v]||v).join(', '):(qLabels[qk].opts[a]||a||'-');
+    return `<div class="ans-item"><div class="ans-q">${qLabels[qk].label}</div><div class="ans-a">${vals}</div></div>`;
+  }).join('');
+
+  document.getElementById('detail-modal-title').textContent = l.contact.name+' — '+l.contact.company;
+  document.getElementById('detail-modal-body').innerHTML = `
+    <div class="detail-section">
+      <div class="detail-section-title">Contact Info</div>
+      ${[['ชื่อ',l.contact.name],['บริษัท',l.contact.company],['ตำแหน่ง',l.contact.position],['โทร/LINE',l.contact.phone],['Email',l.contact.email],['Role',ROLE_LABELS[l.role_interest]||l.role_interest]].map(([k,v])=>`<div class="detail-row"><div class="detail-key">${k}</div><div class="detail-val">${v||'-'}</div></div>`).join('')}
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Health Score</div>
+      ${[['Overall',l.scores.overall],['Revenue',l.scores.revenue],['Retention',l.scores.retention],['Partner',l.scores.partner],['Data',l.scores.data],['Sales',l.scores.sales],['AI Ready',l.scores.ai],['Health Level',l.health_level]].map(([k,v])=>`<div class="detail-row"><div class="detail-key">${k}</div><div class="detail-val">${v}</div></div>`).join('')}
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">คำตอบ / Answers</div>
+      <div class="answers-block">${ansHTML}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Recommended Modules</div>
+      <div class="detail-row"><div class="detail-val" style="text-align:left">${(l.recommended_modules||[]).join(', ')||'-'}</div></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Follow-up Direction</div>
+      <div class="detail-row"><div class="detail-key">Primary</div><div class="detail-val">${l.follow_up_direction?.primary||'-'}</div></div>
+      <div class="detail-row"><div class="detail-key">Secondary</div><div class="detail-val">${(l.follow_up_direction?.secondary||[]).join(', ')||'-'}</div></div>
+    </div>
+  `;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeDetailModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportCSV() {
+  const leads = getLeads();
+  if(!leads.length){showToast('ยังไม่มีข้อมูล Lead');return;}
+
+  const Q1_LABELS = {A:'ขายตรงให้ลูกค้าปลายทาง',B:'ขายผ่าน Partner/Dealer/Distributor',C:'ขายผ่านสาขา/ศูนย์/Franchise',D:'ทีมขายดูแลลูกค้าซ้ำ',E:'มีสินค้า/อุปกรณ์วางไว้กับลูกค้า',F:'หลายช่องทาง/ไม่แน่ใจ'};
+  const Q2_LABELS = {A:'ลูกค้าเก่าหาย/ไม่ซื้อซ้ำ',B:'Partner/Dealer ไม่ช่วย Push ขาย',C:'ยอดซื้อซ้ำไม่สม่ำเสมอ',D:'ทีมขาย Follow-up ไม่ทัน',E:'ไม่รู้ว่าควรติดต่อใครก่อน',F:'ข้อมูลกระจัดกระจาย ไม่มี Dashboard',G:'คู่แข่งแย่งลูกค้า',H:'อยากใช้ AI แต่ยังไม่รู้จะเริ่มตรงไหน'};
+  const Q3_LABELS = {A:'Excel/Google Sheet',B:'POS/ERP/CRM',C:'รายงานจากทีมขาย',D:'ข้อมูลอยู่กับหลายทีม ยังไม่รวมกัน',E:'มีข้อมูลแต่ยังไม่ได้วิเคราะห์',F:'ยังไม่มีข้อมูลที่เป็นระบบ'};
+  const Q4_LABELS = {A:'รู้ชัด มีระบบติดตามอยู่แล้ว',B:'พอรู้ แต่ดูเองจาก Excel/Report',C:'รู้ตอนยอดตก หรือลูกค้าโทรมาเอง',D:'รอหัวหน้าหรือลูกค้าแจ้ง',E:'ยังไม่มีระบบ Follow-up ชัดเจน'};
+  const Q5_LABELS = {A:'Executive Dashboard',B:'Customer Data',C:'Customer Status (AI จัดกลุ่มลูกค้า)',D:'AI Recommendations',E:'Action Board',F:'Campaigns',G:'Find New B2B Leads',H:'Commission Calculator',I:'Competitors Report',J:'Frontline Performance',K:'Equipments Usage',L:'Abnormal Detection'};
+  const INTEREST_LABELS = {A:'อยากดูว่า Salesyncs ช่วยเพิ่มยอดขาย/ดูแลลูกค้า/Partner ได้อย่างไร',B:'สนใจทดลองใช้ระบบ/ทำ Pilot',C:'สนใจการลงทุน/Funding',D:'สนใจร่วมพัฒนาเทคโนโลยี/Data/AI',E:'สนใจในมุมหน่วยงานรัฐ/SME',F:'สนใจให้คำแนะนำ/Mentorship',G:'แค่มาเยี่ยมชม/อยากรู้ภาพรวม'};
+
+  const mapKeys = (keys, labelMap) => (keys||[]).map(k=>labelMap[k]||k).join(' | ');
+
+  const headers = [
+    'lead_id','วันที่-เวลา',
+    'ชื่อ','บริษัท','ตำแหน่ง','โทร/LINE','Email',
+    'ความสนใจ (keys)','ความสนใจ (ข้อความ)','Lead Type',
+    'Overall Score','Health Level',
+    'Revenue Score','Retention Score','Partner Score','Data Score','Sales Score','AI Score',
+    'Q1 ช่องทางขาย (keys)','Q1 ช่องทางขาย (ข้อความ)',
+    'Q2 ปัญหาหลัก (keys)','Q2 ปัญหาหลัก (ข้อความ)',
+    'Q3 รูปแบบข้อมูล (keys)','Q3 รูปแบบข้อมูล (ข้อความ)',
+    'Q4 ระบบ Follow-up (key)','Q4 ระบบ Follow-up (ข้อความ)',
+    'Q5 สิ่งที่ต้องการ (keys)','Q5 สิ่งที่ต้องการ (ข้อความ)',
+    'Recommended Modules','Follow-up Primary','Follow-up Secondary'
+  ];
+
+  const rows = leads.map(l => {
+    const interests = l.interests || (l.role_interest ? [l.role_interest] : []);
+    return [
+      l.lead_id,
+      new Date(l.created_at).toLocaleString('th-TH'),
+      l.contact.name, l.contact.company, l.contact.position, l.contact.phone, l.contact.email,
+      interests.join('|'),
+      mapKeys(interests, INTEREST_LABELS),
+      ROLE_LABELS[l.role_interest]||l.role_interest||'-',
+      l.scores.overall, l.health_level,
+      l.scores.revenue, l.scores.retention, l.scores.partner, l.scores.data, l.scores.sales, l.scores.ai,
+      (l.answers.q1||[]).join('|'), mapKeys(l.answers.q1, Q1_LABELS),
+      (l.answers.q2||[]).join('|'), mapKeys(l.answers.q2, Q2_LABELS),
+      (l.answers.q3||[]).join('|'), mapKeys(l.answers.q3, Q3_LABELS),
+      l.answers.q4||'', Q4_LABELS[l.answers.q4]||'',
+      (l.answers.q5||[]).join('|'), mapKeys(l.answers.q5, Q5_LABELS),
+      (l.recommended_modules||[]).join(' | '),
+      l.follow_up_direction?.primary||'',
+      (l.follow_up_direction?.secondary||[]).join(' | ')
+    ].map(v=>'"'+(String(v??'').replace(/"/g,'""'))+'"').join(',');
+  });
+
+  const csv = '﻿' + [headers.join(','),...rows].join('\n');
+  dlFile('salesyncs_leads_'+new Date().toISOString().slice(0,10)+'.csv', csv, 'text/csv;charset=utf-8');
+  showToast('✓ Exported CSV');
+}
+
+function downloadJSON() {
+  const leads = getLeads();
+  if(!leads.length){showToast('ยังไม่มีข้อมูล Lead');return;}
+  dlFile('salesyncs_leads_'+new Date().toISOString().slice(0,10)+'.json', JSON.stringify(leads,null,2), 'application/json');
+  showToast('✓ Downloaded JSON');
+}
+
+function dlFile(name, content, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content],{type:mime}));
+  a.download = name;
+  a.click();
+}
+
+function clearLeads() {
+  if(!confirm('ยืนยันลบข้อมูล Lead ทั้งหมด? / Confirm delete all leads?')) return;
+  localStorage.removeItem('salesyncs_leads');
+  refreshAdmin();
+  showToast('✓ ล้างข้อมูลเรียบร้อย');
+}
+
+// ============================================================
+// UTIL
+// ============================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// Close modal on overlay click
+document.getElementById('detail-modal').addEventListener('click', function(e){
+  if(e.target===this) closeDetailModal();
+});
+</script>
+</body>
+</html>
