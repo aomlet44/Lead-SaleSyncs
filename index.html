@@ -938,6 +938,25 @@ const Q5_MODULES = {
 
 const VALID_MODULES = ['Executive Dashboard','Customer Data','Customer Status','AI Recommendations','Action Board','Campaigns','Find New B2B Leads','Commission Calculator','Competitors Report','Frontline Performance','Equipments Usage','Abnormal Detection'];
 
+// ── MODULE DISPLAY NAMES (Product Flow Diagram) ──────────────
+// Internal keys ไม่เปลี่ยน — เฉพาะชื่อและคำอธิบายที่แสดงบน Report/PDF
+const MODULE_DISPLAY = {
+  'Executive Dashboard':   { name:'Executive Dashboard',                                                    thai:'ภาพรวมธุรกิจและจุดตัดสินใจสำหรับผู้บริหาร' },
+  'Customer Data':         { name:'Qualitative / Human Data Input & Quantitative / Software Data Input',    thai:'ศูนย์รวมข้อมูลเชิงคุณภาพจากคน และข้อมูลเชิงตัวเลขจากระบบ' },
+  'Customer Status':       { name:'AI Analysis & Partner Health',                                           thai:'วิเคราะห์สถานะ สุขภาพ และโอกาสของลูกค้า / Partner' },
+  'AI Recommendations':    { name:'AI Prediction & Recommendation',                                        thai:'AI คาดการณ์และแนะนำ Next Best Action ที่ควรทำต่อ' },
+  'Action Board':          { name:'Human Take AI Recommendation Action and Feedback',                       thai:'เปลี่ยนคำแนะนำจาก AI ให้เป็นงานจริง และเก็บ Feedback กลับเข้าระบบ' },
+  'Campaigns':             { name:'Partner Campaign Activation',                                            thai:'สร้างและติดตามแคมเปญเพื่อกระตุ้น Partner ให้เกิดการใช้งานจริง' },
+  'Find New B2B Leads':    { name:'B2B Lead Scraper Loop',                                                  thai:'ค้นหา เก็บข้อมูล และจัดลำดับ Lead B2B ใหม่' },
+  'Commission Calculator': { name:'B2B Sale Commission Calculator',                                         thai:'คำนวณค่าคอมและแรงจูงใจสำหรับทีมขายและ Frontline' },
+  'Competitors Report':    { name:'Competitor Loop Daily Report',                                           thai:'เก็บข้อมูลคู่แข่ง สรุปความเปลี่ยนแปลง และแนะนำการรับมือ' },
+  'Frontline Performance': { name:'Frontline Staff Performance',                                            thai:'วัดผลงาน การขาย และความพร้อมของทีม Frontline' },
+  'Equipments Usage':      { name:'Machine / Equipment Usage Check',                                       thai:'ตรวจสอบว่าเครื่องหรืออุปกรณ์ถูกใช้งานจริงหรือมีจุดที่ต้องดูแล' },
+  'Abnormal Detection':    { name:'Abnormal Detection',                                                     thai:'ตรวจจับและตรวจสอบความผิดปกติของข้อมูล การใช้งาน หรือธุรกรรม' }
+};
+function getDisplayName(key) { return (MODULE_DISPLAY[key]||{}).name || key; }
+function getDisplayThai(key) { return (MODULE_DISPLAY[key]||{}).thai || ''; }
+
 function getRecommendedModules(ans) {
   const {q2,q5} = ans;
   const sorted = PRIORITY_ORDER.filter(p=>q2.includes(p));
@@ -1052,20 +1071,6 @@ function getModuleReason(module, answers) {
 
 function buildModulesSection(modules, answers) {
   if (!modules.length) return '';
-  const TAGS = {
-    'Executive Dashboard':'เห็นภาพรวมก่อนตัดสินใจ',
-    'Customer Data':'ข้อมูลลูกค้าครบในที่เดียว',
-    'Customer Status':'รู้สถานะลูกค้าทุกราย',
-    'AI Recommendations':'AI บอกว่าต้องทำอะไรต่อ',
-    'Action Board':'Assign งาน ไม่มีหลุด',
-    'Campaigns':'กระตุ้นยอดขายแม่นยำ',
-    'Find New B2B Leads':'ขยาย Pipeline อัตโนมัติ',
-    'Commission Calculator':'คำนวณค่าคอม กระตุ้น Frontline',
-    'Competitors Report':'ติดตามคู่แข่ง รู้ก่อน',
-    'Frontline Performance':'วัดผล SA/Frontline',
-    'Equipments Usage':'ติดตามอุปกรณ์ที่วางไว้',
-    'Abnormal Detection':'ตรวจจับความผิดปกติ'
-  };
   const mIcons = {
     'Executive Dashboard':'📊','Customer Data':'👥','Customer Status':'🎯',
     'AI Recommendations':'🤖','Action Board':'✅','Campaigns':'📢',
@@ -1074,6 +1079,10 @@ function buildModulesSection(modules, answers) {
   };
 
   const [featured, ...rest] = modules;
+  const fName   = getDisplayName(featured);
+  const fThai   = getDisplayThai(featured);
+  const fReason = getModuleReason(featured, answers);
+  const fFirst  = (MODULE_DETAILS[featured]||{}).first || '';
 
   const featuredHTML = `
     <div style="background:linear-gradient(135deg,rgba(34,197,94,0.07),rgba(56,189,248,0.04));border:1px solid rgba(34,197,94,0.25);border-radius:14px;padding:18px;margin-bottom:10px;position:relative;overflow:hidden;">
@@ -1083,17 +1092,20 @@ function buildModulesSection(modules, answers) {
           <div style="width:42px;height:42px;border-radius:10px;background:rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${mIcons[featured]||'◆'}</div>
           <div style="flex:1;">
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
-              <span style="font-size:15px;font-weight:800;">${featured}</span>
-              <span style="font-size:9px;font-weight:700;color:var(--green);background:var(--green-dim);border:1px solid rgba(34,197,94,0.3);border-radius:4px;padding:2px 6px;letter-spacing:0.5px;">★ START HERE</span>
+              <span style="font-size:13px;font-weight:800;line-height:1.3;">${fName}</span>
+              <span style="font-size:9px;font-weight:700;color:var(--green);background:var(--green-dim);border:1px solid rgba(34,197,94,0.3);border-radius:4px;padding:2px 6px;letter-spacing:0.5px;white-space:nowrap;">★ START HERE</span>
             </div>
-            <div style="font-size:11px;color:var(--text3);">${TAGS[featured]||''}</div>
+            <div style="font-size:11px;color:var(--text3);">${fThai}</div>
           </div>
         </div>
-        <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:11px 13px;margin-bottom:12px;">
-          <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;">สำหรับธุรกิจของคุณ</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.65;">${getModuleReason(featured, answers)}</div>
+        <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:11px 13px;margin-bottom:8px;">
+          <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;">เหมาะกับธุรกิจคุณเพราะ</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.65;">${fReason}</div>
         </div>
-        <div style="font-size:11px;color:var(--text3);">แนะนำเริ่มต้นที่ Module นี้ก่อน</div>
+        ${fFirst ? `<div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);border-radius:8px;padding:10px 13px;">
+          <div style="font-size:9px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;">จุดเริ่มต้นที่แนะนำ</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.65;">${fFirst}</div>
+        </div>` : ''}
       </div>
     </div>`;
 
@@ -1101,8 +1113,8 @@ function buildModulesSection(modules, answers) {
     <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:12px 10px;display:flex;align-items:flex-start;gap:9px;">
       <div style="width:32px;height:32px;min-width:32px;border-radius:8px;background:var(--blue-dim);display:flex;align-items:center;justify-content:center;font-size:16px;">${mIcons[m]||'◆'}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:12px;font-weight:700;margin-bottom:2px;">${m}</div>
-        <div style="font-size:10px;color:var(--text3);line-height:1.4;">${TAGS[m]||''}</div>
+        <div style="font-size:11px;font-weight:700;margin-bottom:2px;line-height:1.3;">${getDisplayName(m)}</div>
+        <div style="font-size:10px;color:var(--text3);line-height:1.4;">${getDisplayThai(m)}</div>
       </div>
       <span style="color:var(--text3);font-size:14px;padding-top:5px;">›</span>
     </div>`).join('');
@@ -1111,8 +1123,8 @@ function buildModulesSection(modules, answers) {
     <div id="report-section-modules" style="margin:0 16px 12px;">
       <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px;">
         <div>
-          <div style="font-size:14px;font-weight:800;letter-spacing:-0.3px;margin-bottom:2px;">Your Salesyncs Starting Kit</div>
-          <div style="font-size:11px;color:var(--text3);">เครื่องมือที่ตรงกับปัญหาธุรกิจของคุณ</div>
+          <div style="font-size:14px;font-weight:800;letter-spacing:-0.3px;margin-bottom:2px;">Salesyncs Modules Recommended for You</div>
+          <div style="font-size:11px;color:var(--text3);">โมดูลของ Salesyncs ที่เหมาะกับธุรกิจคุณ</div>
         </div>
         <div style="font-size:10px;color:var(--blue);border:1px solid rgba(56,189,248,0.3);border-radius:20px;padding:3px 10px;font-weight:600;white-space:nowrap;">${modules.length} Modules</div>
       </div>
@@ -1487,24 +1499,28 @@ function buildPDFPage1HTML(d, radarImgSrc) {
 function buildPDFPage2HTML(d) {
   const {lead, answers, modules, followUp, actionPlan} = d;
   const mIcons = {'Executive Dashboard':'📊','Customer Data':'👥','Customer Status':'🎯','AI Recommendations':'🤖','Action Board':'✅','Campaigns':'📢','Find New B2B Leads':'🔍','Commission Calculator':'💰','Competitors Report':'🔬','Frontline Performance':'📈','Equipments Usage':'🔧','Abnormal Detection':'⚠️'};
-  const TAGS = {'Executive Dashboard':'ดู KPI และยอดขายแบบ Real-time','Customer Data':'รวมข้อมูลลูกค้าในที่เดียว','Customer Status':'AI จัดกลุ่มลูกค้า Active/Watch/Sleep','AI Recommendations':'คำแนะนำ Action จาก AI อัตโนมัติ','Action Board':'Assign และติดตามงานทีมขาย','Campaigns':'กระตุ้นยอดขาย Partner และศูนย์','Find New B2B Leads':'หา Lead B2B ใหม่ตาม ICP','Commission Calculator':'คำนวณค่าคอม Real-time','Competitors Report':'วิเคราะห์คู่แข่งอัตโนมัติ','Frontline Performance':'วัดผล SA/Frontline รายคน','Equipments Usage':'ติดตามอุปกรณ์ที่วางกับลูกค้า','Abnormal Detection':'ตรวจจับความผิดปกติในยอดขาย'};
 
   const featured = modules[0]||'';
   const rest = modules.slice(1,5);
+  const fPDFFirst = (MODULE_DETAILS[featured]||{}).first || '';
 
   const featuredCard = featured ? `
     <div style="background:rgba(34,197,94,0.06);border:2px solid rgba(34,197,94,0.4);border-radius:12px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:flex-start;gap:14px;">
       <div style="font-size:28px;flex-shrink:0;">${mIcons[featured]||'◆'}</div>
       <div style="flex:1;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-          <div style="font-size:14px;font-weight:800;">${featured}</div>
-          <div style="font-size:9px;font-weight:700;color:#22C55E;background:rgba(34,197,94,0.15);border-radius:20px;padding:2px 8px;">★ START HERE</div>
+          <div style="font-size:13px;font-weight:800;line-height:1.3;">${getDisplayName(featured)}</div>
+          <div style="font-size:9px;font-weight:700;color:#22C55E;background:rgba(34,197,94,0.15);border-radius:20px;padding:2px 8px;white-space:nowrap;">★ START HERE</div>
         </div>
-        <div style="font-size:11px;color:#94A3B8;line-height:1.55;">${TAGS[featured]||''}</div>
-        <div style="margin-top:8px;padding:8px 12px;background:rgba(0,0,0,0.2);border-radius:8px;font-size:11px;color:#94A3B8;">
-          <span style="color:#64748B;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:3px;">สำหรับธุรกิจของคุณ</span>
-          ${getModuleReason(featured, answers)}
+        <div style="font-size:11px;color:#94A3B8;line-height:1.55;margin-bottom:8px;">${getDisplayThai(featured)}</div>
+        <div style="padding:8px 12px;background:rgba(0,0,0,0.2);border-radius:8px;margin-bottom:${fPDFFirst?'6px':'0'};">
+          <span style="color:#64748B;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:3px;">เหมาะกับธุรกิจคุณเพราะ</span>
+          <span style="font-size:11px;color:#94A3B8;">${getModuleReason(featured, answers)}</span>
         </div>
+        ${fPDFFirst ? `<div style="padding:8px 12px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);border-radius:8px;">
+          <span style="color:#38BDF8;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:3px;">จุดเริ่มต้นที่แนะนำ</span>
+          <span style="font-size:11px;color:#94A3B8;">${fPDFFirst}</span>
+        </div>` : ''}
       </div>
     </div>` : '';
 
@@ -1512,8 +1528,8 @@ function buildPDFPage2HTML(d) {
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
       <span style="font-size:20px;">${mIcons[m]||'◆'}</span>
       <div style="flex:1;">
-        <div style="font-size:12px;font-weight:700;margin-bottom:2px;">${m}</div>
-        <div style="font-size:10px;color:#64748B;">${TAGS[m]||''}</div>
+        <div style="font-size:11px;font-weight:700;margin-bottom:2px;line-height:1.3;">${getDisplayName(m)}</div>
+        <div style="font-size:10px;color:#64748B;line-height:1.4;">${getDisplayThai(m)}</div>
       </div>
     </div>`).join('');
 
@@ -1541,8 +1557,8 @@ function buildPDFPage2HTML(d) {
 
     <!-- MODULES -->
     <div style="margin-bottom:22px;">
-      <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Your Salesyncs Starting Kit</div>
-      <div style="font-size:13px;color:#94A3B8;margin-bottom:14px;">เครื่องมือที่ตรงกับปัญหาธุรกิจของคุณ — ${modules.length} Modules</div>
+      <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Salesyncs Modules Recommended for You</div>
+      <div style="font-size:13px;color:#94A3B8;margin-bottom:14px;">โมดูลของ Salesyncs ที่เหมาะกับธุรกิจคุณ — ${modules.length} Modules</div>
       ${featuredCard}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${restCards}</div>
     </div>
@@ -1994,7 +2010,7 @@ function viewLeadDetail(id) {
     </div>
     <div class="detail-section">
       <div class="detail-section-title">Recommended Modules</div>
-      <div class="detail-row"><div class="detail-val" style="text-align:left">${(l.recommended_modules||[]).join(', ')||'-'}</div></div>
+      <div class="detail-row"><div class="detail-val" style="text-align:left">${(l.recommended_modules||[]).map(m=>getDisplayName(m)).join(', ')||'-'}</div></div>
     </div>
     <div class="detail-section">
       <div class="detail-section-title">Follow-up Direction</div>
