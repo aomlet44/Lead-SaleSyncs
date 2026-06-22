@@ -856,7 +856,7 @@ function generateReport() {
 // BUSINESS LOGIC
 // ============================================================
 function calcScores(ans) {
-  let s = { revenue:75, retention:75, partner:75, data:75, sales:75, ai:75 };
+  let s = { revenue:75, retention:75, partner:75, data:75, sales:75, ai:50 };
   const {q1,q2,q3,q4,q5} = ans;
 
   // Revenue
@@ -888,15 +888,36 @@ function calcScores(ans) {
   const q4adj = {A:10,B:0,C:-10,D:-20,E:-25};
   s.sales += (q4adj[q4]||0);
 
-  // AI
-  if(q2.includes('H')) s.ai -= 20;
-  if(q3.includes('B')||q3.includes('E')) s.ai += 10;
-  if(q5.includes('C')||q5.includes('D')) s.ai += 10;
+  // AI Readiness — วัดความพร้อมของข้อมูลและกระบวนการ ไม่ใช่ความสนใจใน AI
+  // Q3: Data Sources
+  if(q3.includes('A')) s.ai += 5;
+  if(q3.includes('B')) s.ai += 15;
+  if(q3.includes('C')) s.ai += 3;
+  if(q3.includes('D')) s.ai -= 15;
+  if(q3.includes('E')) s.ai -= 5;
+  if(q3.includes('F')) s.ai -= 25;
+  // Q4: Follow-up Process
+  const q4aiAdj = {A:10, B:5, C:-5, D:-10, E:-15};
+  s.ai += (q4aiAdj[q4] || 0);
+  // Q2: Business Challenges (data & AI gaps only)
+  if(q2.includes('F')) s.ai -= 10;
+  if(q2.includes('H')) s.ai -= 15;
+  // Q5 ไม่มีผลต่อ AI Readiness โดยเด็ดขาด
 
-  Object.keys(s).forEach(k=>{ s[k]=Math.max(10,Math.min(100,Math.round(s[k]))); });
+  // Clamp มิติอื่น: 10–100
+  Object.keys(s).filter(k => k !== 'ai').forEach(k => { s[k] = Math.max(10, Math.min(100, Math.round(s[k]))); });
+  // Clamp AI: 20–90 (range แคบกว่าเพราะ AI readiness ไม่ควรขึ้นถึง 100 จากแบบสอบถามนี้)
+  s.ai = Math.max(20, Math.min(90, Math.round(s.ai)));
   const overall = Math.round(Object.values(s).reduce((a,b)=>a+b,0)/6);
   const health = overall>=80?'Healthy':overall>=60?'Watch':'Sleep';
   return {...s, overall, health};
+}
+
+function getAIReadinessStatus(score) {
+  if (score >= 80) return { label:'AI-Ready',            color:'#22C55E', desc:'ธุรกิจมีฐานข้อมูลที่แข็งแกร่งและกระบวนการทำงานที่พร้อมนำ AI มาใช้งานได้ทันที' };
+  if (score >= 60) return { label:'Foundation Available', color:'#38BDF8', desc:'ธุรกิจมีโครงสร้างข้อมูลพื้นฐานและกระบวนการบางส่วน พร้อมต่อยอด AI ได้ในระยะกลาง' };
+  if (score >= 40) return { label:'Foundation Building',  color:'#F59E0B', desc:'ธุรกิจมีข้อมูลบางส่วน แต่ข้อมูลยังไม่รวมศูนย์และยังไม่มี Workflow สำหรับติดตามผลที่ชัดเจน' };
+  return                  { label:'Foundation Needed',    color:'#EF4444', desc:'ธุรกิจยังขาดโครงสร้างข้อมูลและกระบวนการพื้นฐาน ต้องสร้าง Foundation ก่อนนำ AI มาใช้' };
 }
 
 const PROFILE_MAP = {
@@ -1299,6 +1320,30 @@ function renderReportPage(d) {
         <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;">Growth Dimension Radar</div>
         ${radarHTML}
       </div>
+
+      <!-- AI READINESS STATUS -->
+      ${(() => {
+        const ai = getAIReadinessStatus(scores.ai);
+        return `<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;margin:0 16px 12px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">AI Readiness</div>
+              <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
+                <span style="font-size:28px;font-weight:900;color:${ai.color};line-height:1;">${scores.ai}</span>
+                <span style="font-size:12px;color:var(--text3);">/ 100</span>
+                <span style="font-size:11px;font-weight:700;color:${ai.color};background:${ai.color}22;border:1px solid ${ai.color}44;border-radius:20px;padding:2px 8px;">${ai.label}</span>
+              </div>
+              <div style="font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:6px;">${ai.desc}</div>
+              <div style="font-size:10px;color:var(--text3);border-top:1px solid var(--border2);padding-top:6px;">คะแนนนี้สะท้อนความพร้อมของข้อมูลและกระบวนการทำงานสำหรับการใช้ AI — ไม่ได้วัดระดับความสนใจใน AI</div>
+            </div>
+            <div style="flex-shrink:0;">
+              <div style="height:60px;width:4px;background:rgba(255,255,255,0.06);border-radius:4px;position:relative;overflow:hidden;">
+                <div style="position:absolute;bottom:0;left:0;width:100%;height:${scores.ai}%;background:${ai.color};border-radius:4px;transition:height .6s;"></div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      })()}
 
       <!-- KEY FINDINGS + ACTIONS -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px 12px;">
