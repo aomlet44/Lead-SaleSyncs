@@ -548,6 +548,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     <div id="role-chart" style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:20px;"></div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:20px;">
+      <div id="chart-challenges" style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:14px;padding:16px 20px;"></div>
       <div id="chart-modules" style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:14px;padding:16px 20px;"></div>
       <div id="chart-problems" style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:14px;padding:16px 20px;"></div>
     </div>
@@ -1663,7 +1664,7 @@ function startNewCheck() {
 // ============================================================
 // LOCALSTORAGE
 // ============================================================
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzG9AMYm2aU_3yDc20r5P8RpnDd8AlgLBgd8r5Ziy2ahXqfVOWOFKZHCqWViXpds1gZeA/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz7ru3_vBUzOlrULX5q5nYUY959ffUf7ZrzCJkVR_V5x6tSMFORdiM4E4wq2LibqOBx/exec';
 
 const Q1_TEXT = {A:'ขายตรงให้ลูกค้าปลายทาง',B:'ขายผ่าน Partner/Dealer/Distributor',C:'ขายผ่านสาขา/ศูนย์/Franchise',D:'ทีมขายดูแลลูกค้าซ้ำ',E:'มีสินค้า/อุปกรณ์วางไว้กับลูกค้า',F:'หลายช่องทาง/ไม่แน่ใจ'};
 const Q2_TEXT = {A:'ลูกค้าเก่าหาย/ไม่ซื้อซ้ำ',B:'Partner ไม่ช่วย Push ขาย',C:'ยอดซื้อซ้ำไม่สม่ำเสมอ',D:'ทีมขาย Follow-up ไม่ทัน',E:'ไม่รู้ว่าควรติดต่อใครก่อน',F:'ข้อมูลกระจัดกระจาย ไม่มี Dashboard',G:'คู่แข่งแย่งลูกค้า',H:'อยากใช้ AI แต่ไม่รู้จะเริ่มตรงไหน'};
@@ -1678,24 +1679,40 @@ function sendToSheets(entry) {
   const d = entry;
   const interests = d.interests || (d.role_interest ? [d.role_interest] : []);
   const payload = {
-    lead_id:       d.lead_id,
-    created_at:    new Date(d.created_at).toLocaleString('th-TH'),
-    name:          d.contact.name,
-    company:       d.contact.company,
-    position:      d.contact.position,
-    phone:         d.contact.phone,
-    email:         d.contact.email,
-    lead_type:     ROLE_LABELS[d.role_interest] || d.role_interest || '-',
-    interests:     mapKeys(interests, INT_TEXT),
-    overall_score: d.scores.overall,
-    health_level:  d.health_level,
-    q1: mapKeys(d.answers.q1, Q1_TEXT),
-    q2: mapKeys(d.answers.q2, Q2_TEXT),
-    q3: mapKeys(d.answers.q3, Q3_TEXT),
-    q4: Q4_TEXT[d.answers.q4] || d.answers.q4 || '',
-    q5: mapKeys(d.answers.q5, Q5_TEXT),
-    modules:       (d.recommended_modules||[]).join(' | '),
-    follow_up:     d.follow_up_direction?.primary || ''
+    lead_id:           d.lead_id,
+    created_at:        new Date(d.created_at).toLocaleString('th-TH'),
+    created_at_iso:    d.created_at,
+    name:              d.contact.name,
+    company:           d.contact.company,
+    position:          d.contact.position,
+    phone:             d.contact.phone,
+    email:             d.contact.email,
+    lead_type:         ROLE_LABELS[d.role_interest] || d.role_interest || '-',
+    role_interest:     d.role_interest || '',
+    interests:         mapKeys(interests, INT_TEXT),
+    interests_keys:    interests.join('|'),
+    overall_score:     d.scores.overall,
+    health_level:      d.health_level,
+    revenue:           d.scores.revenue,
+    retention:         d.scores.retention,
+    partner:           d.scores.partner,
+    data_score:        d.scores.data,
+    sales:             d.scores.sales,
+    ai:                d.scores.ai,
+    q1:                mapKeys(d.answers.q1, Q1_TEXT),
+    q1_keys:           (d.answers.q1||[]).join('|'),
+    q2:                mapKeys(d.answers.q2, Q2_TEXT),
+    q2_keys:           (d.answers.q2||[]).join('|'),
+    q3:                mapKeys(d.answers.q3, Q3_TEXT),
+    q3_keys:           (d.answers.q3||[]).join('|'),
+    q4:                Q4_TEXT[d.answers.q4] || d.answers.q4 || '',
+    q4_key:            d.answers.q4 || '',
+    q5:                mapKeys(d.answers.q5, Q5_TEXT),
+    q5_keys:           (d.answers.q5||[]).join('|'),
+    modules:           (d.recommended_modules||[]).join(' | '),
+    follow_up:         d.follow_up_direction?.primary || '',
+    follow_up_secondary: (d.follow_up_direction?.secondary||[]).join(' | '),
+    json_data:         JSON.stringify(d)
   };
   const params = new URLSearchParams();
   params.append('data', JSON.stringify(payload));
@@ -1706,7 +1723,6 @@ function sendToSheets(entry) {
 }
 
 function saveLead(d) {
-  const leads = JSON.parse(localStorage.getItem('salesyncs_leads')||'[]');
   const entry = {
     lead_id: 'L'+Date.now(),
     created_at: new Date().toISOString(),
@@ -1721,12 +1737,34 @@ function saveLead(d) {
     follow_up_direction: d.followUp,
     profiles: d.profiles
   };
+  // เก็บ localStorage เป็น fallback
+  const leads = JSON.parse(localStorage.getItem('salesyncs_leads')||'[]');
   leads.push(entry);
   localStorage.setItem('salesyncs_leads', JSON.stringify(leads));
   sendToSheets(entry);
 }
 
+// Cache จาก Sheets (null = ยังไม่ได้โหลด)
+let _sheetsLeads = null;
+
+async function loadLeadsFromSheets() {
+  try {
+    const resp = await fetch(SHEETS_URL + '?action=read&t=' + Date.now());
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const json = await resp.json();
+    if (json.ok && Array.isArray(json.rows)) {
+      _sheetsLeads = json.rows;
+      return json.rows;
+    }
+  } catch(e) {
+    console.warn('Sheets load failed, using localStorage:', e);
+  }
+  _sheetsLeads = null;
+  return JSON.parse(localStorage.getItem('salesyncs_leads') || '[]');
+}
+
 function getLeads() {
+  if (_sheetsLeads !== null) return _sheetsLeads;
   return JSON.parse(localStorage.getItem('salesyncs_leads')||'[]');
 }
 
@@ -1755,7 +1793,11 @@ function adminLogout() {
   showPage('page-welcome');
 }
 
-function refreshAdmin() {
+async function refreshAdmin() {
+  const tbody = document.getElementById('leads-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3);">⏳ กำลังโหลดข้อมูลจาก Google Sheets...</td></tr>';
+  _sheetsLeads = null;
+  await loadLeadsFromSheets();
   renderAdminStats();
   renderLeadsTable();
 }
