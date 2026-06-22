@@ -1777,9 +1777,10 @@ function sendToSheets(entry) {
   };
   const params = new URLSearchParams();
   params.append('data', JSON.stringify(payload));
-  fetch(SHEETS_URL + '?' + params.toString(), {
-    method: 'GET',
-    mode: 'no-cors'
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: params
   }).catch(e => console.warn('Sheets sync failed:', e));
 }
 

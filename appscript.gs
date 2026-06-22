@@ -69,6 +69,11 @@ function doGet(e) {
   return jsonResp({ ok: true, message: 'Salesyncs API ready' });
 }
 
+// รับ POST (form-encoded) — ไม่มี URL length limit
+function doPost(e) {
+  return doGet(e);
+}
+
 function jsonResp(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
