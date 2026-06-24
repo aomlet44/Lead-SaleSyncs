@@ -1008,7 +1008,7 @@ function getExecSummary(lead, ans, scores, profiles) {
   return [
     `${lead.company} ดำเนินธุรกิจผ่านช่องทางหลัก: ${channels||'หลายช่องทาง'}`,
     `ปัญหาหลักที่ต้องการแก้ไขคือ: ${problems||'ปรับปรุงระบบภาพรวม'}`,
-    `คะแนนสุขภาพธุรกิจโดยรวม ${scores.overall}/100 อยู่ในระดับ "${hlTH}" (${scores.health})`,
+    `คะแนนสุขภาพธุรกิจโดยรวม ${scores.overall}/100 อยู่ในระดับ "${hlTH}"`,
     `จุดที่ควรเริ่มก่อนคือ "${profiles.primary.name}" — ${profiles.primary.reason}`
   ];
 }
@@ -1190,8 +1190,7 @@ function createHealthRingSVG(score, health) {
     <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="url(#ringG)" stroke-width="10"
       stroke-dasharray="${filled.toFixed(1)} ${(circ-filled).toFixed(1)}"
       stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>
-    <text x="${cx}" y="${cx-3}" text-anchor="middle" font-size="8.5" fill="#64748B" font-family="Inter,sans-serif" letter-spacing="1">HEALTH</text>
-    <text x="${cx}" y="${cx+11}" text-anchor="middle" font-size="11" fill="${c1}" font-family="Inter,sans-serif" font-weight="700">${health}</text>
+    <text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="22" font-weight="900" fill="${c1}" font-family="Inter,sans-serif">${score}</text>
   </svg>`;
 }
 
@@ -1467,7 +1466,7 @@ function buildPDFPage1HTML(d, radarImgSrc) {
       </div>
       <div style="text-align:right;">
         <div style="font-size:11px;color:#64748B;margin-bottom:4px;">${now}</div>
-        <div style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:${scores.health==='Healthy'?'rgba(34,197,94,0.15)':scores.health==='Watch'?'rgba(245,158,11,0.15)':'rgba(239,68,68,0.15)'};color:${hColor};">${scores.health}</div>
+        <div style="width:14px;height:14px;border-radius:50%;background:${hColor};box-shadow:0 0 8px ${hColor}88;"></div>
       </div>
     </div>
 
@@ -1508,9 +1507,7 @@ function buildPDFPage1HTML(d, radarImgSrc) {
           <div style="font-size:12px;color:#94A3B8;">${scoreDesc}</div>
         </div>
         <div style="text-align:center;flex-shrink:0;">
-          <div style="width:72px;height:72px;border-radius:50%;border:5px solid ${hColor};display:flex;align-items:center;justify-content:center;flex-direction:column;">
-            <div style="font-size:10px;font-weight:800;color:${hColor};">${scores.health}</div>
-          </div>
+          <div style="width:72px;height:72px;border-radius:50%;border:5px solid ${hColor};background:${hColor}22;box-shadow:0 0 16px ${hColor}44;"></div>
         </div>
       </div>
     </div>
